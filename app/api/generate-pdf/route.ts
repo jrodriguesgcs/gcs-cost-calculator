@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getProgram, slugifyProgramName } from "@/lib/programs/registry";
+import { getProgram } from "@/lib/programs/registry";
 import { ProgramVariableValues } from "@/lib/programs/types";
 import { renderQuoteToPdf } from "@/lib/pdf/render-pdf";
+import { toAsciiFilenameSegment } from "@/lib/filename";
 
 // Generous timeout headroom for cold-started serverless Chromium launches.
 export const maxDuration = 60;
@@ -44,8 +45,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "PDF generation failed." }, { status: 500 });
   }
 
-  const programNameSlug = slugifyProgramName(program.config.name);
-  const clientNameSlug = clientName.trim().replace(/\s+/g, "-");
+  const programNameSlug = toAsciiFilenameSegment(program.config.name, program.config.slug);
+  const clientNameSlug = toAsciiFilenameSegment(clientName.trim(), "Client");
   const filename = `GCS_Estimate_${programNameSlug}_${clientNameSlug}.pdf`;
 
   return new NextResponse(new Uint8Array(pdfBuffer), {

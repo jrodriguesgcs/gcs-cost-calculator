@@ -1,15 +1,38 @@
 import type { Browser, Page } from "puppeteer-core";
 import { Quote } from "../programs/types";
-import { renderEstimateHtml } from "./print-template";
+import {
+  renderEstimateHtml,
+  renderHeaderTemplate,
+  renderFooterTemplate,
+  HEADER_MARGIN_MM,
+  FOOTER_MARGIN_MM,
+} from "./print-template";
 
-// A4 content box height in CSS px at 96dpi, minus the page's own vertical
-// padding (20mm top + 16mm bottom, see print-template.ts), used to detect
-// overflow for the auto-shrink step below.
+// Content-area height for one A4 page, i.e. the page height minus the
+// header/footer margin bands Puppeteer reserves (see print-template.ts,
+// which uses the same constants) — used to detect overflow for the
+// auto-shrink step below.
 const MM_TO_PX = 96 / 25.4;
-const A4_HEIGHT_PX = 297 * MM_TO_PX;
+// A couple of px of slack absorbs sub-pixel rounding in scrollHeight
+// measurement (e.g. Chromium rounding up to the next device pixel) so
+// content that just barely fits doesn't spuriously trigger a shrink/second
+// page.
+const OVERFLOW_TOLERANCE_PX = 3;
+const CONTENT_HEIGHT_PX =
+  (297 - HEADER_MARGIN_MM - FOOTER_MARGIN_MM) * MM_TO_PX + OVERFLOW_TOLERANCE_PX;
 
-const MIN_SCALE = 0.72;
-const SCALE_STEP = 0.04;
+// One page is preferred, not forced: shrink text/spacing down to this
+// floor to try to fit a dense quote on one page, but stop there — beyond
+// this point shrinking further would make the document hard to read.
+// 0.8 is chosen so a normal-sized quote (a handful of dependants) still
+// comfortably lands on one page, while a genuinely dense one (many
+// dependants pushing several extra fee lines into every section) is
+// allowed to flow onto a second page instead of being shrunk further —
+// unlike the previous 0.72 floor, which is what made the footnotes read
+// as cramped/illegible (that's fixed for contrast/size regardless, but a
+// harder floor here means it's never relied on for that alone).
+const MIN_SCALE = 0.8;
+const SCALE_STEP = 0.03;
 
 async function launchBrowser(): Promise<Browser> {
   const puppeteer = await import("puppeteer-core");
@@ -43,9 +66,12 @@ async function measureContentHeightPx(page: Page): Promise<number> {
 }
 
 /**
- * Renders a Quote to a one-page A4 PDF, auto-shrinking font size/spacing
- * (via the print template's --scale variable) until the content fits,
- * rather than overflowing to a second page or blocking generation.
+ * Renders a Quote to an A4 PDF, auto-shrinking font size/spacing (via the
+ * print template's --scale variable) to try to fit one page — but only
+ * down to a readable floor. A genuinely dense quote flows onto a second
+ * (or later) page rather than being shrunk into illegibility; the branded
+ * header/footer repeat correctly on every page via Puppeteer's native
+ * header/footer templates.
  */
 export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
   const browser = await launchBrowser();
@@ -61,7 +87,7 @@ export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
 
     let contentHeightPx = await measureContentHeightPx(page);
 
-    while (contentHeightPx > A4_HEIGHT_PX && scale > MIN_SCALE) {
+    while (contentHeightPx > CONTENT_HEIGHT_PX && scale > MIN_SCALE) {
       scale = Math.max(MIN_SCALE, scale - SCALE_STEP);
       html = renderEstimateHtml(quote, scale);
       await page.setContent(html, { waitUntil: "load" });
@@ -72,7 +98,18 @@ export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      preferCSSPageSize: true,
+      displayHeaderFooter: true,
+      headerTemplate: renderHeaderTemplate(),
+      footerTemplate: renderFooterTemplate(),
+      // Left/right stay 0 here: the 20mm side inset is applied as CSS
+      // padding in both the main content (print-template.ts's `.page`) and
+      // the header/footer templates themselves, so it isn't double-applied.
+      margin: {
+        top: `${HEADER_MARGIN_MM}mm`,
+        bottom: `${FOOTER_MARGIN_MM}mm`,
+        left: "0mm",
+        right: "0mm",
+      },
     });
 
     return Buffer.from(pdfBuffer);

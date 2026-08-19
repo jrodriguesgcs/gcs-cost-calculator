@@ -16,9 +16,15 @@ const PAGE_NUM_COLOR = "#999999";
 
 // Document-palette tokens (reference doc §1.10) — the finer-grained
 // neutral/border scale meant for print/PDF contexts specifically.
-const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line
-const DOC_SUBTLE = "#C6C8D5"; // footnotes, copyright lines
+const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line, and (for real contrast) the footnotes
 const DOC_BORDER_LIGHT = "#ECEDF5"; // lightest divider (most common) — line-item and footer rules
+
+// Page-margin bands reserved for the repeating header/footer (see
+// render-pdf.ts's `page.pdf({ margin })`) — exported so both sides of the
+// header/footer-vs-content-height math stay in sync.
+export const HEADER_MARGIN_MM = 35;
+export const FOOTER_MARGIN_MM = 16;
+export const PAGE_SIDE_MARGIN_MM = 20;
 
 let cachedLogoDataUri: string | null = null;
 let cachedPinDataUri: string | null = null;
@@ -71,14 +77,57 @@ function escapeHtml(value: string): string {
 }
 
 /**
- * Renders the estimate as a standalone HTML document styled per the GCS
- * letterhead design tokens. `scale` (0 < scale <= 1) is the auto-shrink
- * lever used by the PDF route to fit everything on one A4 page — it scales
- * font sizes and vertical spacing together via a CSS custom property.
+ * Repeating page header (logo + office locations), rendered via Puppeteer's
+ * native `page.pdf({ headerTemplate })` so it appears correctly on every
+ * physical page — necessary now that a quote can legitimately span more
+ * than one page (see render-pdf.ts).
  */
-export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
+export function renderHeaderTemplate(): string {
   const logo = getLogoDataUri();
   const pin = getPinDataUri();
+  const fontFaceCss = getFontFaceCss();
+
+  return `<style>${fontFaceCss}</style>
+<div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; display:flex; justify-content:space-between; align-items:flex-start; font-family:'Heebo',sans-serif;">
+  <img src="${logo}" style="height:11mm;" />
+  <div style="text-align:right; font-size:9pt; color:${NAVY};">
+    <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px; margin-bottom:2px;"><img src="${pin}" style="width:4mm; height:4mm;" /></div>
+    <div>United Kingdom</div>
+    <div>Portugal</div>
+    <div>Brazil</div>
+  </div>
+</div>`;
+}
+
+/**
+ * Repeating page footer (URL + real, dynamic page count via Puppeteer's
+ * `pageNumber`/`totalPages` placeholder classes) — see renderHeaderTemplate.
+ */
+export function renderFooterTemplate(): string {
+  const fontFaceCss = getFontFaceCss();
+
+  return `<style>${fontFaceCss}</style>
+<div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; display:flex; justify-content:space-between; font-family:'Heebo',sans-serif; font-size:10pt;">
+  <span style="color:${FOOTER_URL_COLOR};">GLOBALCITIZENSOLUTIONS.COM</span>
+  <span style="color:${PAGE_NUM_COLOR};"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+</div>`;
+}
+
+/**
+ * Renders the estimate's content (title, family structure, fee sections,
+ * grand total, footnotes) as a standalone HTML document styled per the GCS
+ * letterhead design tokens. The repeating header/footer are handled
+ * separately by Puppeteer (see renderHeaderTemplate/renderFooterTemplate)
+ * so they display correctly regardless of how many physical pages the
+ * content ends up spanning.
+ *
+ * `scale` (0 < scale <= 1) is the auto-shrink lever used by the PDF route
+ * to prefer fitting everything on one A4 page — it scales font sizes and
+ * vertical spacing together via a CSS custom property. Once `scale` hits
+ * its floor, genuinely dense quotes are allowed to flow onto a second page
+ * rather than being shrunk further into illegibility.
+ */
+export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
   const fontFaceCss = getFontFaceCss();
 
   const sectionsHtml = quote.sections
@@ -133,34 +182,18 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     font-size: calc(11pt * var(--scale));
     line-height: 1.4;
   }
-  @page { size: A4; margin: 0; }
   .page {
-    width: 210mm;
-    min-height: 297mm;
-    padding: calc(20mm * var(--scale)) 20mm calc(16mm * var(--scale)) 20mm;
+    /* Deliberately no min-height here: render-pdf.ts measures this
+       element's natural scrollHeight to decide whether to shrink/paginate,
+       and a min-height equal to the comparison threshold would make that
+       measurement always read as "at least the threshold" regardless of
+       actual content size. The physical A4 page size is controlled by
+       Puppeteer's page.pdf({ format: "A4" }) call, independent of this. */
+    width: 100%;
+    padding: 0 ${PAGE_SIDE_MARGIN_MM}mm;
     display: flex;
     flex-direction: column;
   }
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: calc(10mm * var(--scale));
-  }
-  .header img.logo { height: calc(11mm * var(--scale)); }
-  .header .locations {
-    text-align: right;
-    font-size: calc(9pt * var(--scale));
-    color: ${NAVY};
-  }
-  .header .locations .pin-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 4px;
-    margin-bottom: 2px;
-  }
-  .header .locations img.pin { width: calc(4mm * var(--scale)); height: calc(4mm * var(--scale)); }
   h1 {
     font-family: "Yrsa", serif;
     font-weight: 400;
@@ -178,7 +211,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     color: ${DOC_MUTED_ALT};
     margin: 0 0 calc(8mm * var(--scale)) 0;
   }
-  .quote-section { margin-bottom: calc(6mm * var(--scale)); }
+  .quote-section { margin-bottom: calc(6mm * var(--scale)); break-inside: avoid; }
   .section-header {
     display: flex;
     justify-content: space-between;
@@ -218,6 +251,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     border-bottom: 2px solid ${NAVY};
     padding: calc(3mm * var(--scale)) 0;
     margin: calc(2mm * var(--scale)) 0 calc(8mm * var(--scale)) 0;
+    break-inside: avoid;
   }
   .grand-total .label {
     font-family: "Yrsa", serif;
@@ -230,36 +264,17 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     color: ${NAVY};
   }
   .footnotes {
-    margin-top: auto;
-    font-size: calc(7.5pt * var(--scale));
-    color: ${DOC_SUBTLE};
+    margin-top: calc(6mm * var(--scale));
+    font-size: calc(8pt * var(--scale));
+    color: ${DOC_MUTED_ALT};
     padding-left: calc(4mm * var(--scale));
+    break-inside: avoid;
   }
   .footnotes li { margin-bottom: calc(1mm * var(--scale)); }
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10pt;
-    padding-top: 4mm;
-    border-top: 1px solid ${DOC_BORDER_LIGHT};
-    margin-top: 6mm;
-  }
-  .footer .url { color: ${FOOTER_URL_COLOR}; text-decoration: none; }
-  .footer .page-num { color: ${PAGE_NUM_COLOR}; }
 </style>
 </head>
 <body>
   <div class="page" id="estimate-page">
-    <div class="header">
-      <img class="logo" src="${logo}" alt="Global Citizen Solutions" />
-      <div class="locations">
-        <div class="pin-row"><img class="pin" src="${pin}" alt="" /></div>
-        <div>United Kingdom</div>
-        <div>Portugal</div>
-        <div>Brazil</div>
-      </div>
-    </div>
-
     <h1>Investment Estimate - ${escapeHtml(quote.programName)}</h1>
     <div class="client-name">${escapeHtml(quote.clientName)}</div>
     <div class="family-structure">${escapeHtml(quote.familyStructure)}</div>
@@ -274,11 +289,6 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     <ul class="footnotes">
       ${footnotesHtml}
     </ul>
-
-    <div class="footer">
-      <a class="url" href="https://globalcitizensolutions.com">GLOBALCITIZENSOLUTIONS.COM</a>
-      <span class="page-num">1</span>
-    </div>
   </div>
 </body>
 </html>`;

@@ -18,8 +18,8 @@ const yrsa = Yrsa({
 });
 
 export const metadata: Metadata = {
-  title: "GCS Investment Estimate Generator",
-  description: "Generate branded investment estimate PDFs for prospective GCS clients.",
+  title: "GCS Cost Calculator",
+  description: "Internal Global Citizen Solutions tool",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
