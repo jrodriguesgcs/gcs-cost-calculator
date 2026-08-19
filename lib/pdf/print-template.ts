@@ -27,7 +27,6 @@ export const FOOTER_MARGIN_MM = 16;
 export const PAGE_SIDE_MARGIN_MM = 20;
 
 let cachedLogoDataUri: string | null = null;
-let cachedPinDataUri: string | null = null;
 let cachedFontFaceCss: string | null = null;
 
 function readAssetAsDataUri(relativePath: string, mimeType: string): string {
@@ -39,11 +38,6 @@ function readAssetAsDataUri(relativePath: string, mimeType: string): string {
 function getLogoDataUri(): string {
   if (!cachedLogoDataUri) cachedLogoDataUri = readAssetAsDataUri("gcs-logo-full.png", "image/png");
   return cachedLogoDataUri;
-}
-
-function getPinDataUri(): string {
-  if (!cachedPinDataUri) cachedPinDataUri = readAssetAsDataUri("location-pin-icon.png", "image/png");
-  return cachedPinDataUri;
 }
 
 // Fonts are embedded as data URIs (rather than a Google Fonts <link>) so PDF
@@ -84,14 +78,12 @@ function escapeHtml(value: string): string {
  */
 export function renderHeaderTemplate(): string {
   const logo = getLogoDataUri();
-  const pin = getPinDataUri();
   const fontFaceCss = getFontFaceCss();
 
   return `<style>${fontFaceCss}</style>
 <div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; display:flex; justify-content:space-between; align-items:flex-start; font-family:'Heebo',sans-serif;">
   <img src="${logo}" style="height:11mm;" />
   <div style="text-align:right; font-size:9pt; color:${NAVY};">
-    <div style="display:flex; align-items:center; justify-content:flex-end; gap:4px; margin-bottom:2px;"><img src="${pin}" style="width:4mm; height:4mm;" /></div>
     <div>United Kingdom</div>
     <div>Portugal</div>
     <div>Brazil</div>
