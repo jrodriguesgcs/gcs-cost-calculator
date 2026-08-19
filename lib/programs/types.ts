@@ -25,6 +25,12 @@ export interface ProgramVariable {
   default: boolean | number | string;
   /** Short note shown under the field in the form, if useful context. */
   helpText?: string;
+  /**
+   * Cross-field rule: when this returns true (evaluated against the form's
+   * current values), the field is disabled in the UI and its value is
+   * reset. e.g. Italy Golden Visa's `minors` depends on `spouse`.
+   */
+  disabledWhen?: (values: ProgramVariableValues) => boolean;
 }
 
 export interface ProgramSectionMeta {

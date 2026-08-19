@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { listPrograms } from "@/lib/programs/registry";
-import { ProgramVariableValues } from "@/lib/programs/types";
+import { ProgramVariable, ProgramVariableValues } from "@/lib/programs/types";
 import { VariableField } from "@/components/VariableField";
 import { EstimatePreview } from "@/components/EstimatePreview";
 
@@ -39,8 +39,25 @@ export default function Home() {
     setVariables(defaultVariableValues(nextSlug));
   }
 
+  function resetValueFor(variable: ProgramVariable): boolean | number | string {
+    if (variable.type === "boolean") return false;
+    if (variable.type === "number") return 0;
+    return variable.default;
+  }
+
   function updateVariable(key: string, value: boolean | number | string) {
-    setVariables((prev) => ({ ...prev, [key]: value }));
+    setVariables((prev) => {
+      const next = { ...prev, [key]: value };
+      // Cross-field rule: a variable disabled by the new values resets to
+      // its inert value (e.g. Italy Golden Visa's minors, once spouse is
+      // toggled off) rather than keeping a stale, now-inapplicable number.
+      for (const variable of program.config.variables) {
+        if (variable.disabledWhen?.(next)) {
+          next[variable.key] = resetValueFor(variable);
+        }
+      }
+      return next;
+    });
   }
 
   async function handleGeneratePdf() {
@@ -127,6 +144,7 @@ export default function Home() {
                     variable={variable}
                     value={variables[variable.key]}
                     onChange={(value) => updateVariable(variable.key, value)}
+                    disabled={variable.disabledWhen?.(variables) ?? false}
                   />
                 ))}
               </div>
