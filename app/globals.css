@@ -1,26 +1,44 @@
 @import "tailwindcss";
 
+/*
+ * GCS Design System tokens — see gcsdesignsystemreference.md for the full
+ * extraction this is scoped from. Only the tokens this app actually uses
+ * are defined here (no avatar tints, sidebar tokens, dark-mode variants, or
+ * status colors the app doesn't render yet).
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #000957; /* Night Blue 400 — headings, primary CTAs */
+  --color-accent: #3f8cff; /* Electric Blue 400 — links, focus, hover states */
+  --color-foreground: #101828; /* high-emphasis text (headings) */
+  --color-foreground-secondary: #414856; /* body copy — the established GCS body-text gray */
+  --color-background: #f9fafb; /* page canvas */
+  --color-muted: #e9ecf1; /* muted surface */
+  --color-muted-foreground: #667085; /* muted/secondary text */
+  --color-border: #d9e8ff; /* default border / input border */
+  --color-ring: #000957; /* focus ring color */
+  --color-destructive: #ef4343; /* error state */
+  --radius: 0rem; /* sharp corners is a named brand trait */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--color-primary);
+  --color-accent: var(--color-accent);
+  --color-foreground: var(--color-foreground);
+  --color-foreground-secondary: var(--color-foreground-secondary);
+  --color-background: var(--color-background);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-border: var(--color-border);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-ring);
+  --color-destructive: var(--color-destructive);
+  --radius: var(--radius);
+  --font-sans: var(--font-heebo);
+  --font-serif: var(--font-yrsa);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground-secondary);
+  font-family: var(--font-sans);
 }
