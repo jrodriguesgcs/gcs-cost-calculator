@@ -6,18 +6,20 @@ interface Props {
   onChange: (value: boolean | number | string) => void;
 }
 
+const FOCUS_RING = "focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35";
+
 export function VariableField({ variable, value, onChange }: Props) {
   if (variable.type === "boolean") {
     const included = Boolean(value);
     return (
       <div className="flex items-center justify-between py-2">
-        <label className="text-sm text-slate-700">{variable.label}</label>
-        <div className="inline-flex rounded-md border border-slate-300 text-sm">
+        <label className="text-sm text-foreground-secondary">{variable.label}</label>
+        <div className="inline-flex rounded-none border border-border text-sm">
           <button
             type="button"
             onClick={() => onChange(true)}
-            className={`px-3 py-1 rounded-l-md ${
-              included ? "bg-[#000957] text-white" : "bg-white text-slate-600"
+            className={`px-3 py-1 ${
+              included ? "bg-primary text-white" : "bg-white text-foreground-secondary"
             }`}
           >
             Yes
@@ -25,8 +27,8 @@ export function VariableField({ variable, value, onChange }: Props) {
           <button
             type="button"
             onClick={() => onChange(false)}
-            className={`px-3 py-1 rounded-r-md ${
-              !included ? "bg-[#000957] text-white" : "bg-white text-slate-600"
+            className={`px-3 py-1 ${
+              !included ? "bg-primary text-white" : "bg-white text-foreground-secondary"
             }`}
           >
             No
@@ -40,7 +42,7 @@ export function VariableField({ variable, value, onChange }: Props) {
     const numericValue = Number(value ?? 0);
     return (
       <div className="flex items-center justify-between py-2">
-        <label className="text-sm text-slate-700">{variable.label}</label>
+        <label className="text-sm text-foreground-secondary">{variable.label}</label>
         <input
           type="number"
           min={variable.min}
@@ -54,7 +56,7 @@ export function VariableField({ variable, value, onChange }: Props) {
             );
             onChange(clamped);
           }}
-          className="w-20 rounded-md border border-slate-300 px-2 py-1 text-right text-sm"
+          className={`w-20 rounded-none border border-border px-2 py-1 text-right text-sm ${FOCUS_RING}`}
         />
       </div>
     );
@@ -63,11 +65,11 @@ export function VariableField({ variable, value, onChange }: Props) {
   // select
   return (
     <div className="flex items-center justify-between py-2">
-      <label className="text-sm text-slate-700">{variable.label}</label>
+      <label className="text-sm text-foreground-secondary">{variable.label}</label>
       <select
         value={String(value)}
         onChange={(event) => onChange(event.target.value)}
-        className="rounded-md border border-slate-300 px-2 py-1 text-sm"
+        className={`rounded-none border border-border px-2 py-1 text-sm ${FOCUS_RING}`}
       >
         {variable.options?.map((option) => (
           <option key={option.value} value={option.value}>

@@ -3,16 +3,22 @@ import path from "path";
 import { Quote } from "../programs/types";
 import { formatAmount, formatCurrency } from "../currency";
 
-// Letterhead design tokens, taken from the gcs-letterhead skill's
-// references/design-spec.md (colors/fonts/header/footer), reproduced here
-// as HTML/CSS since this is a generated PDF, not a .docx.
-
+// Brand tokens per the GCS Design System (gcsdesignsystemreference.md).
+// Navy/accent/body-text are unchanged from the original gcs-letterhead
+// tokens (confirmed no conflict, §7 of the reference doc) — body text stays
+// #414856 (--foreground-secondary) rather than the newer --doc-body
+// #4B4E65 print variant, per the doc's own explicit recommendation.
 const NAVY = "#000957";
 const BODY = "#414856";
 const ACCENT = "#3F8CFF";
-const GRAY = "#666666";
 const FOOTER_URL_COLOR = "#0F1A2D";
 const PAGE_NUM_COLOR = "#999999";
+
+// Document-palette tokens (reference doc §1.10) — the finer-grained
+// neutral/border scale meant for print/PDF contexts specifically.
+const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line
+const DOC_SUBTLE = "#C6C8D5"; // footnotes, copyright lines
+const DOC_BORDER_LIGHT = "#ECEDF5"; // lightest divider (most common) — line-item and footer rules
 
 let cachedLogoDataUri: string | null = null;
 let cachedPinDataUri: string | null = null;
@@ -169,7 +175,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
   }
   .family-structure {
     font-size: calc(11pt * var(--scale));
-    color: ${GRAY};
+    color: ${DOC_MUTED_ALT};
     margin: 0 0 calc(8mm * var(--scale)) 0;
   }
   .quote-section { margin-bottom: calc(6mm * var(--scale)); }
@@ -177,7 +183,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    border-bottom: 1px solid ${NAVY};
+    border-bottom: 2px solid ${NAVY};
     padding-bottom: calc(1.5mm * var(--scale));
     margin-bottom: calc(2mm * var(--scale));
   }
@@ -199,7 +205,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
   }
   table.line-items td.amount { text-align: right; white-space: nowrap; }
   table.line-items tfoot tr.subtotal td {
-    border-top: 1px solid #d8dce3;
+    border-top: 1px solid ${DOC_BORDER_LIGHT};
     padding-top: calc(1.5mm * var(--scale));
     font-weight: 600;
     color: ${NAVY};
@@ -226,7 +232,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
   .footnotes {
     margin-top: auto;
     font-size: calc(7.5pt * var(--scale));
-    color: ${GRAY};
+    color: ${DOC_SUBTLE};
     padding-left: calc(4mm * var(--scale));
   }
   .footnotes li { margin-bottom: calc(1mm * var(--scale)); }
@@ -235,7 +241,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     justify-content: space-between;
     font-size: 10pt;
     padding-top: 4mm;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid ${DOC_BORDER_LIGHT};
     margin-top: 6mm;
   }
   .footer .url { color: ${FOOTER_URL_COLOR}; text-decoration: none; }
