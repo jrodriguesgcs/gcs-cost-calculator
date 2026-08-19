@@ -24,14 +24,14 @@ const CONTENT_HEIGHT_PX =
 // One page is preferred, not forced: shrink text/spacing down to this
 // floor to try to fit a dense quote on one page, but stop there — beyond
 // this point shrinking further would make the document hard to read.
-// 0.8 is chosen so a normal-sized quote (a handful of dependants) still
-// comfortably lands on one page, while a genuinely dense one (many
-// dependants pushing several extra fee lines into every section) is
-// allowed to flow onto a second page instead of being shrunk further —
-// unlike the previous 0.72 floor, which is what made the footnotes read
-// as cramped/illegible (that's fixed for contrast/size regardless, but a
-// harder floor here means it's never relied on for that alone).
-const MIN_SCALE = 0.8;
+// 0.75 comfortably covers a normal-sized quote across programs with either
+// 4 sections (Malta MPRP, needs ~0.81) or 5 (Italy Golden Visa, needs
+// ~0.77) — a genuinely dense quote (many dependants pushing several extra
+// fee lines into every section) is still allowed to flow onto a second
+// page instead of being shrunk further. Unlike the old 0.72 floor, this is
+// paired with the footnote contrast/size fix, so it's never relied on for
+// readability alone.
+const MIN_SCALE = 0.75;
 const SCALE_STEP = 0.03;
 
 async function launchBrowser(): Promise<Browser> {

@@ -1,3 +1,5 @@
+import { italyGoldenVisaCalculator } from "./italy-golden-visa.calculator";
+import { italyGoldenVisaConfig } from "./italy-golden-visa.config";
 import { maltaMprpCalculator } from "./malta-mprp.calculator";
 import { maltaMprpConfig } from "./malta-mprp.config";
 import { ProgramDefinition } from "./types";
@@ -7,6 +9,7 @@ import { ProgramDefinition } from "./types";
 // entry here. Nothing else in the app needs to change.
 const programs: ProgramDefinition[] = [
   { config: maltaMprpConfig, calculator: maltaMprpCalculator },
+  { config: italyGoldenVisaConfig, calculator: italyGoldenVisaCalculator },
 ];
 
 export const programRegistry = new Map<string, ProgramDefinition>(

@@ -4,11 +4,16 @@ interface Props {
   variable: ProgramVariable;
   value: boolean | number | string;
   onChange: (value: boolean | number | string) => void;
+  disabled?: boolean;
 }
 
 const FOCUS_RING = "focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35";
 
-export function VariableField({ variable, value, onChange }: Props) {
+export function VariableField({ variable, value, onChange, disabled = false }: Props) {
+  const helpText = variable.helpText && (
+    <p className="mt-0.5 text-xs text-muted-foreground">{variable.helpText}</p>
+  );
+
   if (variable.type === "boolean") {
     const included = Boolean(value);
     return (
@@ -41,23 +46,27 @@ export function VariableField({ variable, value, onChange }: Props) {
   if (variable.type === "number") {
     const numericValue = Number(value ?? 0);
     return (
-      <div className="flex items-center justify-between py-2">
-        <label className="text-sm text-foreground-secondary">{variable.label}</label>
-        <input
-          type="number"
-          min={variable.min}
-          max={variable.max}
-          value={numericValue}
-          onChange={(event) => {
-            const next = Number(event.target.value);
-            const clamped = Math.min(
-              variable.max ?? Infinity,
-              Math.max(variable.min ?? 0, Number.isNaN(next) ? 0 : next),
-            );
-            onChange(clamped);
-          }}
-          className={`w-20 rounded-none border border-border px-2 py-1 text-right text-sm ${FOCUS_RING}`}
-        />
+      <div className="py-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm text-foreground-secondary">{variable.label}</label>
+          <input
+            type="number"
+            min={variable.min}
+            max={variable.max}
+            value={numericValue}
+            disabled={disabled}
+            onChange={(event) => {
+              const next = Number(event.target.value);
+              const clamped = Math.min(
+                variable.max ?? Infinity,
+                Math.max(variable.min ?? 0, Number.isNaN(next) ? 0 : next),
+              );
+              onChange(clamped);
+            }}
+            className={`w-20 rounded-none border border-border px-2 py-1 text-right text-sm disabled:cursor-not-allowed disabled:opacity-50 ${FOCUS_RING}`}
+          />
+        </div>
+        {helpText}
       </div>
     );
   }
