@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GCS Investment Estimate Generator
 
-## Getting Started
+Internal Next.js app for GCS staff: pick a Program of Interest, enter a client
+name and a few program-specific variables, and download a branded, one-page
+A4 PDF investment estimate. See `investment-estimate-tool-spec.md` for the
+full product spec this implements.
 
-First, run the development server:
+No authentication — internal-only tool per spec.
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+PDF generation uses `puppeteer-core` and needs a Chromium binary:
+- **Locally**: defaults to `/opt/pw-browsers/chromium` (this environment's
+  pre-installed Chromium). Override with the `LOCAL_CHROMIUM_PATH` env var if
+  your Chromium lives elsewhere.
+- **Deployed to Vercel**: automatically uses `@sparticuz/chromium`, the
+  serverless-compatible Chromium build (detected via the `VERCEL` env var
+  Vercel sets automatically).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Adding a new program
 
-## Learn More
+Programs are the extension point described in the spec (§7, Program Intake
+Checklist). To add one:
 
-To learn more about Next.js, take a look at the following resources:
+1. Create `lib/programs/<slug>.config.ts` — display data: name, currency,
+   variables (with type/range/options), section titles + timing labels,
+   footnotes. Follow `malta-mprp.config.ts`.
+2. Create `lib/programs/<slug>.calculator.ts` — the fee formulas and the
+   family-structure sentence for that program, returning a `Quote`. Follow
+   `malta-mprp.calculator.ts`. Use the shared `buildFamilyStructureSentence`
+   helper (`lib/family-structure.ts`) for the family-structure clause.
+3. Register both in `lib/programs/registry.ts`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Nothing else needs to change — the form, live preview, and PDF route all read
+from the registry.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Architecture notes
 
-## Deploy on Vercel
+- `lib/programs/` — per-program config + calculator modules (the data
+  model from spec §3), plus the registry (extension point).
+- `lib/family-structure.ts` — shared "Family Structure" sentence builder.
+- `lib/currency.ts` — currency formatting, always driven by the program's
+  own `currency` field, never hardcoded.
+- `lib/pdf/print-template.ts` — the letterhead-styled HTML used for both the
+  PDF and (conceptually) the live preview's visual language. Design tokens
+  (colors/fonts/header/footer) come from the `gcs-letterhead` skill's design
+  spec, reproduced in CSS since this is a generated PDF, not a .docx.
+- `lib/pdf/render-pdf.ts` — Puppeteer rendering + the one-page auto-shrink
+  loop (scales font-size/spacing down via a CSS custom property until the
+  content fits A4, instead of overflowing or blocking generation).
+- `app/api/generate-pdf/route.ts` — POST endpoint: `{ programSlug,
+  clientName, variables }` → PDF binary, filename
+  `GCS_Estimate_{Program-Slug}_{Client-Name}.pdf`.
+- `app/page.tsx` — the wizard UI (program → client name → variables → live
+  preview → Generate PDF).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Known spec interpretation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Malta MPRP's rental line (real estate section): Section 3 holds the
+**first year's** rent (due at approval), Section 4 holds each **subsequent**
+year (years 2–5) — resolved this way with the requester to avoid
+double-counting the same year's rent, per the spec's own flagged question.
