@@ -20,8 +20,3 @@ export function listPrograms(): ProgramDefinition[] {
 export function getProgram(slug: string): ProgramDefinition | undefined {
   return programRegistry.get(slug);
 }
-
-/** Program name, hyphenated for use in the output filename (spec §2). */
-export function slugifyProgramName(name: string): string {
-  return name.trim().replace(/\s+/g, "-");
-}

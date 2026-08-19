@@ -83,12 +83,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background px-6 py-10">
       <div className="mx-auto max-w-5xl">
-        <h1 className="font-serif text-3xl font-normal text-foreground">
-          Investment Estimate Generator
-        </h1>
+        <h1 className="font-serif text-3xl font-normal text-foreground">Cost Calculator</h1>
         <p className="mt-1 text-sm text-foreground-secondary">
-          Internal tool — generate a branded, one-page investment estimate PDF for a
-          prospective client.
+          Internal Global Citizen Solutions tool
         </p>
 
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
