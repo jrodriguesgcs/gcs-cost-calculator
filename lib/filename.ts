@@ -10,7 +10,9 @@ export function toAsciiFilenameSegment(value: string, fallback: string = "File")
     .replace(/[\u0300-\u036f]/g, "") // strip combining diacritics: João -> Joao
     .trim()
     .replace(/\s+/g, "-")
-    .replace(/[^A-Za-z0-9-]/g, ""); // drop anything else unsafe in a filename/header
+    .replace(/[^A-Za-z0-9-]/g, "") // drop anything else unsafe in a filename/header -- e.g. "&"
+    .replace(/-+/g, "-") // collapse repeats left by a dropped char between spaces, e.g. "St-Kitts-&-Nevis" -> "St-Kitts--Nevis"
+    .replace(/^-|-$/g, ""); // trim a leading/trailing hyphen left by a dropped char at either end
 
   return ascii || fallback;
 }
