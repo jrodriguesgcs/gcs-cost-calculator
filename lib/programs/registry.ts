@@ -11,6 +11,8 @@ import { stLuciaCbiConfig } from "./st-lucia-cbi.config";
 import { stpCbiCalculator } from "./stp-cbi.calculator";
 import { stpCbiConfig } from "./stp-cbi.config";
 import { ProgramDefinition } from "./types";
+import { vanuatuCbiCalculator } from "./vanuatu-cbi.calculator";
+import { vanuatuCbiConfig } from "./vanuatu-cbi.config";
 
 // Extension point: to add a new program, create `<slug>.config.ts` +
 // `<slug>.calculator.ts` following the malta-mprp.* pair, then add one
@@ -22,6 +24,7 @@ const programs: ProgramDefinition[] = [
   { config: sknCbiConfig, calculator: sknCbiCalculator },
   { config: stLuciaCbiConfig, calculator: stLuciaCbiCalculator },
   { config: stpCbiConfig, calculator: stpCbiCalculator },
+  { config: vanuatuCbiConfig, calculator: vanuatuCbiCalculator },
 ];
 
 export const programRegistry = new Map<string, ProgramDefinition>(
