@@ -2,6 +2,8 @@ import { italyGoldenVisaCalculator } from "./italy-golden-visa.calculator";
 import { italyGoldenVisaConfig } from "./italy-golden-visa.config";
 import { maltaMprpCalculator } from "./malta-mprp.calculator";
 import { maltaMprpConfig } from "./malta-mprp.config";
+import { nauruCbiCalculator } from "./nauru-cbi.calculator";
+import { nauruCbiConfig } from "./nauru-cbi.config";
 import { ProgramDefinition } from "./types";
 
 // Extension point: to add a new program, create `<slug>.config.ts` +
@@ -10,6 +12,7 @@ import { ProgramDefinition } from "./types";
 const programs: ProgramDefinition[] = [
   { config: maltaMprpConfig, calculator: maltaMprpCalculator },
   { config: italyGoldenVisaConfig, calculator: italyGoldenVisaCalculator },
+  { config: nauruCbiConfig, calculator: nauruCbiCalculator },
 ];
 
 export const programRegistry = new Map<string, ProgramDefinition>(
