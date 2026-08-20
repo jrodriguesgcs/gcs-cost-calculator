@@ -81,13 +81,8 @@ export function renderHeaderTemplate(): string {
   const fontFaceCss = getFontFaceCss();
 
   return `<style>${fontFaceCss}</style>
-<div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; display:flex; justify-content:space-between; align-items:flex-start; font-family:'Heebo',sans-serif;">
+<div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; font-family:'Heebo',sans-serif;">
   <img src="${logo}" style="height:11mm;" />
-  <div style="text-align:right; font-size:9pt; color:${NAVY};">
-    <div>United Kingdom</div>
-    <div>Portugal</div>
-    <div>Brazil</div>
-  </div>
 </div>`;
 }
 

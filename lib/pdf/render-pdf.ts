@@ -13,13 +13,15 @@ import {
 // which uses the same constants) — used to detect overflow for the
 // auto-shrink step below.
 const MM_TO_PX = 96 / 25.4;
-// A couple of px of slack absorbs sub-pixel rounding in scrollHeight
-// measurement (e.g. Chromium rounding up to the next device pixel) so
-// content that just barely fits doesn't spuriously trigger a shrink/second
-// page.
-const OVERFLOW_TOLERANCE_PX = 3;
-const CONTENT_HEIGHT_PX =
-  (297 - HEADER_MARGIN_MM - FOOTER_MARGIN_MM) * MM_TO_PX + OVERFLOW_TOLERANCE_PX;
+// Safety margin subtracted from the raw budget: our scrollHeight
+// measurement comes from the live, on-screen DOM, not from Chromium's
+// actual print/pagination pass, and the two can disagree by a handful of
+// px (seen in practice: content measured as fitting with <1px to spare
+// still spilled onto a second real page). Requiring real headroom here —
+// not just clearing the raw number — makes the loop shrink one more notch
+// in those close calls instead of gambling on an exact edge case.
+const PAGE_SAFETY_MARGIN_PX = 20;
+const CONTENT_HEIGHT_PX = (297 - HEADER_MARGIN_MM - FOOTER_MARGIN_MM) * MM_TO_PX - PAGE_SAFETY_MARGIN_PX;
 
 // One page is preferred, not forced: shrink text/spacing down to this
 // floor to try to fit a dense quote on one page, but stop there — beyond
