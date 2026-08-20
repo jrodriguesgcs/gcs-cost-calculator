@@ -6,6 +6,10 @@ import { nauruCbiCalculator } from "./nauru-cbi.calculator";
 import { nauruCbiConfig } from "./nauru-cbi.config";
 import { sknCbiCalculator } from "./skn-cbi.calculator";
 import { sknCbiConfig } from "./skn-cbi.config";
+import { stLuciaCbiCalculator } from "./st-lucia-cbi.calculator";
+import { stLuciaCbiConfig } from "./st-lucia-cbi.config";
+import { stpCbiCalculator } from "./stp-cbi.calculator";
+import { stpCbiConfig } from "./stp-cbi.config";
 import { ProgramDefinition } from "./types";
 
 // Extension point: to add a new program, create `<slug>.config.ts` +
@@ -16,6 +20,8 @@ const programs: ProgramDefinition[] = [
   { config: italyGoldenVisaConfig, calculator: italyGoldenVisaCalculator },
   { config: nauruCbiConfig, calculator: nauruCbiCalculator },
   { config: sknCbiConfig, calculator: sknCbiCalculator },
+  { config: stLuciaCbiConfig, calculator: stLuciaCbiCalculator },
+  { config: stpCbiConfig, calculator: stpCbiCalculator },
 ];
 
 export const programRegistry = new Map<string, ProgramDefinition>(
