@@ -2,6 +2,8 @@ import { greeceGoldenVisaCalculator } from "./greece-golden-visa.calculator";
 import { greeceGoldenVisaConfig } from "./greece-golden-visa.config";
 import { italyGoldenVisaCalculator } from "./italy-golden-visa.calculator";
 import { italyGoldenVisaConfig } from "./italy-golden-visa.config";
+import { latviaGoldenVisaCalculator } from "./latvia-golden-visa.calculator";
+import { latviaGoldenVisaConfig } from "./latvia-golden-visa.config";
 import { maltaMprpCalculator } from "./malta-mprp.calculator";
 import { maltaMprpConfig } from "./malta-mprp.config";
 import { nauruCbiCalculator } from "./nauru-cbi.calculator";
@@ -23,6 +25,7 @@ const programs: ProgramDefinition[] = [
   { config: maltaMprpConfig, calculator: maltaMprpCalculator },
   { config: italyGoldenVisaConfig, calculator: italyGoldenVisaCalculator },
   { config: greeceGoldenVisaConfig, calculator: greeceGoldenVisaCalculator },
+  { config: latviaGoldenVisaConfig, calculator: latviaGoldenVisaCalculator },
   { config: nauruCbiConfig, calculator: nauruCbiCalculator },
   { config: sknCbiConfig, calculator: sknCbiCalculator },
   { config: stLuciaCbiConfig, calculator: stLuciaCbiCalculator },
