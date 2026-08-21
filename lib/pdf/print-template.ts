@@ -26,7 +26,7 @@ export const HEADER_MARGIN_MM = 35;
 export const FOOTER_MARGIN_MM = 16;
 export const PAGE_SIDE_MARGIN_MM = 20;
 
-let cachedLogoDataUri: string | null = null;
+let cachedLogo: { dataUri: string; aspectRatio: number } | null = null;
 let cachedFontFaceCss: string | null = null;
 
 function readAssetAsDataUri(relativePath: string, mimeType: string): string {
@@ -35,9 +35,29 @@ function readAssetAsDataUri(relativePath: string, mimeType: string): string {
   return `data:${mimeType};base64,${buffer.toString("base64")}`;
 }
 
-function getLogoDataUri(): string {
-  if (!cachedLogoDataUri) cachedLogoDataUri = readAssetAsDataUri("gcs-logo-full.png", "image/png");
-  return cachedLogoDataUri;
+// The GCS Design System (gcs-design-system skill, §3.10) calls for the
+// "Secondary" lockup — inline symbol + wordmark, Blue variant — in "page
+// headers, footers, letterheads": a better fit for a header band than the
+// old letterhead skill's stacked "Primary" lockup, and shipped as a real
+// SVG rather than a raster PNG. Its aspect ratio is read from the file
+// itself (its root <svg> width/height attributes) rather than hardcoded,
+// per that same section's own rule ("always compute placement dimensions
+// from the real file's aspect ratio — never guess").
+function getLogoAsset(): { dataUri: string; aspectRatio: number } {
+  if (cachedLogo) return cachedLogo;
+
+  const filePath = path.join(process.cwd(), "public", "letterhead", "GCS-Secondary-Blue.svg");
+  const svg = fs.readFileSync(filePath, "utf8");
+  const widthMatch = svg.match(/<svg[^>]*\swidth="([\d.]+)"/);
+  const heightMatch = svg.match(/<svg[^>]*\sheight="([\d.]+)"/);
+  const width = widthMatch ? parseFloat(widthMatch[1]) : 270;
+  const height = heightMatch ? parseFloat(heightMatch[1]) : 17;
+
+  cachedLogo = {
+    dataUri: `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`,
+    aspectRatio: width / height,
+  };
+  return cachedLogo;
 }
 
 // Fonts are embedded as data URIs (rather than a Google Fonts <link>) so PDF
@@ -52,12 +72,18 @@ function getFontFaceCss(): string {
   const heebo500 = readAssetAsDataUri("fonts/heebo-500.ttf", "font/ttf");
   const heebo600 = readAssetAsDataUri("fonts/heebo-600.ttf", "font/ttf");
   const yrsa400 = readAssetAsDataUri("fonts/yrsa-400.ttf", "font/ttf");
+  // §3.2 of the GCS Design System assigns JetBrains Mono to "application/
+  // reference IDs, codes, data, anything tabular/numeric that benefits
+  // from fixed width" — applied below to the line-item/subtotal amount
+  // columns (see renderEstimateHtml), which are exactly that.
+  const jetbrainsMono400 = readAssetAsDataUri("fonts/jetbrains-mono-400.ttf", "font/ttf");
 
   cachedFontFaceCss = `
     @font-face { font-family: "Heebo"; font-weight: 400; src: url(${heebo400}) format("truetype"); }
     @font-face { font-family: "Heebo"; font-weight: 500; src: url(${heebo500}) format("truetype"); }
     @font-face { font-family: "Heebo"; font-weight: 600; src: url(${heebo600}) format("truetype"); }
     @font-face { font-family: "Yrsa"; font-weight: 400; src: url(${yrsa400}) format("truetype"); }
+    @font-face { font-family: "JetBrains Mono"; font-weight: 400; src: url(${jetbrainsMono400}) format("truetype"); }
   `;
   return cachedFontFaceCss;
 }
@@ -71,18 +97,21 @@ function escapeHtml(value: string): string {
 }
 
 /**
- * Repeating page header (logo + office locations), rendered via Puppeteer's
- * native `page.pdf({ headerTemplate })` so it appears correctly on every
- * physical page — necessary now that a quote can legitimately span more
- * than one page (see render-pdf.ts).
+ * Repeating page header (logo only — office locations were dropped per an
+ * earlier explicit request this session), rendered via Puppeteer's native
+ * `page.pdf({ headerTemplate })` so it appears correctly on every physical
+ * page — necessary now that a quote can legitimately span more than one
+ * page (see render-pdf.ts).
  */
 export function renderHeaderTemplate(): string {
-  const logo = getLogoDataUri();
+  const logo = getLogoAsset();
   const fontFaceCss = getFontFaceCss();
+  const heightMm = 6;
+  const widthMm = heightMm * logo.aspectRatio;
 
   return `<style>${fontFaceCss}</style>
 <div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; font-family:'Heebo',sans-serif;">
-  <img src="${logo}" style="height:11mm;" />
+  <img src="${logo.dataUri}" style="height:${heightMm}mm; width:${widthMm}mm;" />
 </div>`;
 }
 
@@ -223,7 +252,14 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
     padding: calc(1mm * var(--scale)) 0;
     font-size: calc(10.5pt * var(--scale));
   }
-  table.line-items td.amount { text-align: right; white-space: nowrap; }
+  table.line-items td.amount {
+    text-align: right;
+    white-space: nowrap;
+    /* §3.2 of the GCS Design System: JetBrains Mono for tabular/numeric
+       data — these rows are exactly that, unlike the Grand Total below,
+       which stays in Yrsa as a single hero figure, not a tabular one. */
+    font-family: "JetBrains Mono", monospace;
+  }
   table.line-items tfoot tr.subtotal td {
     border-top: 1px solid ${DOC_BORDER_LIGHT};
     padding-top: calc(1.5mm * var(--scale));
