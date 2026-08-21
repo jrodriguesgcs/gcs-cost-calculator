@@ -3,13 +3,15 @@ import path from "path";
 import { Quote } from "../programs/types";
 import { formatAmount, formatCurrency } from "../currency";
 
-// Brand tokens per the GCS Design System (gcsdesignsystemreference.md).
-// Navy/accent/body-text are unchanged from the original gcs-letterhead
-// tokens (confirmed no conflict, §7 of the reference doc) — body text stays
-// #414856 (--foreground-secondary) rather than the newer --doc-body
-// #4B4E65 print variant, per the doc's own explicit recommendation.
+// Brand tokens. Navy/accent are unchanged from the GCS Design System
+// (gcsdesignsystemreference.md). Body text follows the gcs-docx skill's
+// "General" correspondence variant (#343750, paragraph body text) rather
+// than gcs-design-system's --foreground-secondary (#414856) — gcs-docx is
+// the more recently updated brand source for document body-copy color;
+// its "salutation/closing" color (#252839) has no PDF equivalent here
+// (this is a fee estimate, not a letter) and isn't used.
 const NAVY = "#000957";
-const BODY = "#414856";
+const BODY = "#343750";
 const ACCENT = "#3F8CFF";
 const FOOTER_URL_COLOR = "#0F1A2D";
 const PAGE_NUM_COLOR = "#999999";
