@@ -42,3 +42,12 @@ body {
   color: var(--color-foreground-secondary);
   font-family: var(--font-sans);
 }
+
+/* The only animation in this app is the Generate PDF button's loading
+   spinner (app/page.tsx, Tailwind's .animate-spin). Respect a reduced-
+   motion preference by freezing it instead of leaving it spinning. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin {
+    animation: none;
+  }
+}
