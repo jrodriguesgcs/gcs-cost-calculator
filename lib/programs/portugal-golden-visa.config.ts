@@ -60,7 +60,7 @@ export const portugalGoldenVisaConfig: ProgramConfig = {
   footnotes: [
     "Fund subscription, management, and performance fees are excluded — not supplied in the source fee schedule; they're fund-specific and must be added per manager if the Investment Fund route is chosen.",
     "Additional expenses for translations, apostilles, travel, and Portuguese tax on investment returns are unique per application and are not priced in this quotation.",
-    "The GCS consultancy & legal fee for a child dependant is not priced in the current fee schedule — the line will show €0 until GCS confirms a rate.",
+    "The GCS consultancy & legal fee for a child dependant is not priced in the current fee schedule — no line is shown for it until GCS confirms a rate.",
     "AIMA revises government fees annually, typically in March/April — figures above reflect the fee schedule supplied 21 Aug 2026.",
     "Renewal fees (Year 2 and Year 4) are government fees only, not GCS fees, and are due later than the Application Stage.",
     "Fiscal representation is an ongoing annual service, not a one-time cost — the €350 line above covers Year 1 only; GCS will quote each subsequent year separately.",

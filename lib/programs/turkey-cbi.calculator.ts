@@ -128,6 +128,7 @@ export const turkeyCbiCalculator: ProgramCalculator = {
       currency: turkeyCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: isRealEstate ? "Real Estate" : "Bank Deposit",
       sections,
       grandTotal,
       footnotes: turkeyCbiConfig.footnotes,

@@ -21,7 +21,7 @@ import { ProgramConfig } from "./types";
 
 export const stpCbiConfig: ProgramConfig = {
   slug: "stp-cbi",
-  name: "São Tomé and Príncipe CBI",
+  name: "São Tomé and Príncipe Citizenship by Investment",
   currency: "USD",
   variables: [
     {

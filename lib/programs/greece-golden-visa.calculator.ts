@@ -180,6 +180,7 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
       currency: greeceGoldenVisaConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: track === "tangible" ? "Real Estate Investment" : "Capital Investment",
       sections,
       grandTotal,
       // The ~€200/applicant health insurance line is approximate and feeds

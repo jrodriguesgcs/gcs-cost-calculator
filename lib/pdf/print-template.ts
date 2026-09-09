@@ -187,6 +187,7 @@ export function renderEstimateHtml(
         <table class="line-items">
           <tbody>
             ${section.lineItems
+              .filter((item) => item.amount !== 0)
               .map(
                 (item) => `
               <tr${item.amount === null ? ' class="tbc"' : ""}>
@@ -370,6 +371,7 @@ export function renderEstimateHtml(
     <h1>Investment Estimate – ${escapeHtml(quote.programName)}</h1>
     <div class="client-name">${escapeHtml(quote.clientName)}</div>
     <div class="family-structure">${escapeHtml(quote.familyStructure)}</div>
+    ${quote.investmentRoute ? `<div class="family-structure">Investment Route: ${escapeHtml(quote.investmentRoute)}</div>` : ""}
 
     ${sectionsHtml}
 

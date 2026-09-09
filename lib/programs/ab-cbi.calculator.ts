@@ -227,6 +227,7 @@ export const abCbiCalculator: ProgramCalculator = {
       currency: abCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: investmentPathLabel(investmentPath),
       sections,
       grandTotal,
       footnotes: abCbiConfig.footnotes,

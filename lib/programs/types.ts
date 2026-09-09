@@ -76,6 +76,13 @@ export interface Quote {
   currency: string;
   clientName: string;
   familyStructure: string;
+  /**
+   * Human-readable investment route/track/path the client selected (e.g.
+   * "Real Estate Investment", "Innovative Startup") — rendered under the
+   * family structure line as "Investment Route: <value>". Omitted for
+   * programs with a single fixed investment structure (no route choice).
+   */
+  investmentRoute?: string;
   sections: QuoteSection[];
   /** One-time grand total (per spec: Section 1 + Section 2 + Section 3, real estate included, annual obligations excluded) */
   grandTotal: number;

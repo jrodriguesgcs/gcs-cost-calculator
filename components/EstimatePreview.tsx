@@ -9,6 +9,9 @@ export function EstimatePreview({ quote }: { quote: Quote }) {
       </h2>
       <p className="mt-1 text-sm font-medium text-primary">{quote.clientName || "Client name"}</p>
       <p className="mt-1 text-sm text-foreground-secondary">{quote.familyStructure}</p>
+      {quote.investmentRoute && (
+        <p className="mt-1 text-sm text-foreground-secondary">Investment Route: {quote.investmentRoute}</p>
+      )}
 
       <div className="mt-5 space-y-5">
         {quote.sections.map((section) => (
@@ -19,7 +22,9 @@ export function EstimatePreview({ quote }: { quote: Quote }) {
             </div>
             <table className="mt-1 w-full text-sm">
               <tbody>
-                {section.lineItems.map((item) => (
+                {section.lineItems
+                  .filter((item) => item.amount !== 0)
+                  .map((item) => (
                   <tr key={item.label}>
                     <td className="py-0.5 text-foreground-secondary">{item.label}</td>
                     <td className="py-0.5 text-right text-foreground">
