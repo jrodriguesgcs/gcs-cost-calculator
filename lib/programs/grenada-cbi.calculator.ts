@@ -175,7 +175,7 @@ export const grenadaCbiCalculator: ProgramCalculator = {
     ];
     const programmeCostsSubtotal = programmeCostsBeforeBankCharge + bankCharge + vatOnBankCharge;
 
-    const gcsFeeLineItems = [{ label: "GCS professional services fee", amount: GCS_FEE }];
+    const gcsFeeLineItems = [{ label: "GCS professional fee", amount: GCS_FEE }];
     const gcsFeeSubtotal = GCS_FEE;
 
     const sections: QuoteSection[] = [

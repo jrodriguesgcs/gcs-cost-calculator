@@ -17,8 +17,12 @@ const BANK_FEE_FAMILY_4_PLUS = 2_200;
 const BANK_FEE_BENEFACTOR = 1_000;
 // $115,000 base minus the current $25,000 limited-time discount (valid
 // 3 Feb – 31 Dec 2026, confirmed active) — baked in as the current amount
-// per requester decision, not exposed as a form toggle.
-const CONTRIBUTION_MAIN = 90_000;
+// per requester decision, not exposed as a form toggle. Shown as two real
+// line items (base + discount) rather than one net figure, so the client
+// can see the actual discount size, not just the post-discount price.
+const CONTRIBUTION_MAIN_BASE = 115_000;
+const CONTRIBUTION_DISCOUNT = 25_000;
+const CONTRIBUTION_MAIN = CONTRIBUTION_MAIN_BASE - CONTRIBUTION_DISCOUNT;
 const CONTRIBUTION_PER_ADULT_DEPENDANT = 2_000;
 const CONTRIBUTION_PER_SIBLING = 15_000;
 const PASSPORT_FEE_PER_PASSPORT = 500;
@@ -117,7 +121,8 @@ export const nauruCbiCalculator: ProgramCalculator = {
     const contributionSiblingFee = CONTRIBUTION_PER_SIBLING * totalSiblings;
     const passportFee = PASSPORT_FEE_PER_PASSPORT * totalPassports;
     const approvalPaymentLineItems = [
-      { label: "Contribution — main applicant", amount: CONTRIBUTION_MAIN },
+      { label: "Contribution — main applicant", amount: CONTRIBUTION_MAIN_BASE },
+      { label: "Contribution — limited-time discount (see footnote)", amount: -CONTRIBUTION_DISCOUNT },
       { label: "Contribution — dependants aged 16+", amount: contributionDependantsFee },
       { label: "Contribution — sibling dependants", amount: contributionSiblingFee },
       { label: "Passport fee", amount: passportFee },

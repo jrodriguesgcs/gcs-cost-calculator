@@ -122,6 +122,11 @@ export const italyGoldenVisaCalculator: ProgramCalculator = {
       familyStructure,
       sections,
       grandTotal,
+      // Section 1's legalisation/translation/courier line is approximate,
+      // and it feeds directly into this total — the client must see the
+      // Grand Total itself marked "~", not just the one line item, so it's
+      // never mistaken for a fully precise figure.
+      grandTotalApproximate: true,
       footnotes: italyGoldenVisaConfig.footnotes,
     };
   },

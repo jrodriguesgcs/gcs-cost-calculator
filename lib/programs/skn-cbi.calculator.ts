@@ -91,35 +91,71 @@ export const sknCbiCalculator: ProgramCalculator = {
 
     // --- Section 1: Before Submission ---
     const applicationFee = APPLICATION_FEE_PER_PERSON * totalPersons;
-    const cbiDdFee = CBI_DD_MAIN + spouseCount * CBI_DD_SPOUSE + adults * CBI_DD_ADULT + minors * CBI_DD_MINOR;
-    const bankDdPreFee = BANK_DD_PRE_MAIN + spouseCount * BANK_DD_SPOUSE + adults * BANK_DD_ADULT + minors * BANK_DD_MINOR;
+    const cbiDdMainFee = CBI_DD_MAIN;
+    const cbiDdSpouseFee = spouseCount * CBI_DD_SPOUSE;
+    const cbiDdAdultFee = adults * CBI_DD_ADULT;
+    const cbiDdMinorFee = minors * CBI_DD_MINOR;
+    const cbiDdFee = cbiDdMainFee + cbiDdSpouseFee + cbiDdAdultFee + cbiDdMinorFee;
+    const bankDdPreMainFee = BANK_DD_PRE_MAIN;
+    const bankDdPreSpouseFee = spouseCount * BANK_DD_SPOUSE;
+    const bankDdPreAdultFee = adults * BANK_DD_ADULT;
+    const bankDdPreMinorFee = minors * BANK_DD_MINOR;
+    const bankDdPreFee = bankDdPreMainFee + bankDdPreSpouseFee + bankDdPreAdultFee + bankDdPreMinorFee;
     const serviceProviderFee =
       pathCode === "re" ? SERVICE_PROVIDER_FEE_STANDARD : solo ? SERVICE_PROVIDER_FEE_SOLO_WAIVED : SERVICE_PROVIDER_FEE_STANDARD;
 
     const beforeSubmissionLineItems = [
       { label: "CBI application fee", amount: applicationFee },
-      { label: "CBI due diligence fees", amount: cbiDdFee },
-      { label: "Bank due diligence fees — pre-submission", amount: bankDdPreFee },
+      { label: "CBI due diligence fee — main applicant", amount: cbiDdMainFee },
+      { label: "CBI due diligence fee — spouse", amount: cbiDdSpouseFee },
+      { label: "CBI due diligence fee — adult dependants", amount: cbiDdAdultFee },
+      { label: "CBI due diligence fee — minor dependants (exempt)", amount: cbiDdMinorFee },
+      { label: "Bank due diligence fee — main applicant (pre-submission)", amount: bankDdPreMainFee },
+      { label: "Bank due diligence fee — spouse (pre-submission)", amount: bankDdPreSpouseFee },
+      { label: "Bank due diligence fee — adult dependants (pre-submission)", amount: bankDdPreAdultFee },
+      { label: "Bank due diligence fee — minor dependants (pre-submission)", amount: bankDdPreMinorFee },
       { label: "Wire transfer fee — pre-submission", amount: WIRE_TRANSFER_FEE },
-      { label: "Service provider fee", amount: serviceProviderFee },
+      { label: "Registered local service provider fee", amount: serviceProviderFee },
     ];
     const beforeSubmissionSubtotal = applicationFee + cbiDdFee + bankDdPreFee + WIRE_TRANSFER_FEE + serviceProviderFee;
 
     // --- Section 2: After Approval ---
-    const bankDdPostMain = solo ? BANK_DD_POST_MAIN_SOLO : BANK_DD_POST_MAIN_FAMILY;
-    const bankDdPostFee = bankDdPostMain + spouseCount * BANK_DD_SPOUSE + adults * BANK_DD_ADULT + minors * BANK_DD_MINOR;
+    const bankDdPostMainLabel = solo
+      ? "Bank due diligence fee — main applicant, solo rate (post-approval)"
+      : "Bank due diligence fee — main applicant, family rate (post-approval)";
+    const bankDdPostMainFee = solo ? BANK_DD_POST_MAIN_SOLO : BANK_DD_POST_MAIN_FAMILY;
+    const bankDdPostSpouseFee = spouseCount * BANK_DD_SPOUSE;
+    const bankDdPostAdultFee = adults * BANK_DD_ADULT;
+    const bankDdPostMinorFee = minors * BANK_DD_MINOR;
+    const bankDdPostFee = bankDdPostMainFee + bankDdPostSpouseFee + bankDdPostAdultFee + bankDdPostMinorFee;
     const passportFee =
       (pathCode === "sisc" || pathCode === "pbo") && solo
         ? PASSPORT_SOLO_FLAT
         : PASSPORT_FIRST_ADULT + (totalAdultsInclMain - 1) * PASSPORT_ADDITIONAL_ADULT + minors * PASSPORT_MINOR;
 
-    let governmentFee: number;
-    if (pathCode === "sisc") {
-      governmentFee = 0; // folded into the contribution amount below
-    } else if (pathCode === "pbo") {
-      governmentFee = (spouseCount + adults) * PBO_GOV_FEE_ADULT + minors * PBO_GOV_FEE_MINOR;
-    } else {
-      governmentFee = RE_GOV_FEE_BASE + (spouseCount + adults) * RE_GOV_FEE_ADULT + minors * RE_GOV_FEE_MINOR;
+    // Government fees — itemized per path; SISC has none of its own (the
+    // source folds it directly into the contribution amount below, see
+    // config.ts's footnote), so no line item is shown for that path at all
+    // rather than a confusing unexplained $0.
+    let governmentFeeLineItems: { label: string; amount: number }[] = [];
+    let governmentFee = 0;
+    if (pathCode === "pbo") {
+      const pboAdultFee = (spouseCount + adults) * PBO_GOV_FEE_ADULT;
+      const pboMinorFee = minors * PBO_GOV_FEE_MINOR;
+      governmentFee = pboAdultFee + pboMinorFee;
+      governmentFeeLineItems = [
+        { label: "Government fee — spouse & adult dependants", amount: pboAdultFee },
+        { label: "Government fee — minor dependants", amount: pboMinorFee },
+      ];
+    } else if (pathCode === "re") {
+      const reAdultFee = (spouseCount + adults) * RE_GOV_FEE_ADULT;
+      const reMinorFee = minors * RE_GOV_FEE_MINOR;
+      governmentFee = RE_GOV_FEE_BASE + reAdultFee + reMinorFee;
+      governmentFeeLineItems = [
+        { label: "Government fee — base", amount: RE_GOV_FEE_BASE },
+        { label: "Government fee — spouse & adult dependants", amount: reAdultFee },
+        { label: "Government fee — minor dependants", amount: reMinorFee },
+      ];
     }
 
     const realEstateContribution = isRealEstateHome ? RE_CONTRIBUTION_HOME : RE_CONTRIBUTION_CONDO;
@@ -146,9 +182,12 @@ export const sknCbiCalculator: ProgramCalculator = {
     const afterApprovalLineItems = [
       { label: "Wire transfer fee — post-approval", amount: WIRE_TRANSFER_FEE },
       { label: "Courier fee", amount: COURIER_FEE },
-      { label: "Bank due diligence fees — post-approval", amount: bankDdPostFee },
-      { label: "Biometric enrollment & passport fees", amount: passportFee },
-      { label: "Government fees", amount: governmentFee },
+      { label: bankDdPostMainLabel, amount: bankDdPostMainFee },
+      { label: "Bank due diligence fee — spouse (post-approval)", amount: bankDdPostSpouseFee },
+      { label: "Bank due diligence fee — adult dependants (post-approval)", amount: bankDdPostAdultFee },
+      { label: "Bank due diligence fee — minor dependants (post-approval)", amount: bankDdPostMinorFee },
+      { label: "Passport fees", amount: passportFee },
+      ...governmentFeeLineItems,
       { label: "Escrow services", amount: escrowFee },
       { label: contributionLabel, amount: contributionAmount },
     ];

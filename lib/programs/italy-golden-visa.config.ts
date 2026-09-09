@@ -66,5 +66,7 @@ export const italyGoldenVisaConfig: ProgramConfig = {
     "Residence permit fee (~€96 per applicant) applies to each family member; biometric attendance at the Questura is mandatory.",
     "Programme currently suspended for Russian and Belarusian nationals and dual passport holders.",
     "Permanent residence available after 5 years; citizenship after 10 years (B1 Italian language level required).",
+    "Legalisation, translations, and courier costs (~€700) vary by how many documents need certifying and where they originate — the figure above is a typical estimate, not a fixed fee, which is why the Grand Total itself is shown as approximate.",
+    "The Grand Total covers Sections 1–4 (GCS fee, legalisation/translation/courier, visa/stamp fees, residence permit issuance, and the investment itself) — it excludes Section 5's Permit Renewal, which is due after 2 years and shown separately.",
   ],
 };

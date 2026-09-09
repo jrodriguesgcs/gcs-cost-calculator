@@ -5,7 +5,7 @@ export function EstimatePreview({ quote }: { quote: Quote }) {
   return (
     <div className="rounded-none border border-border bg-white p-6">
       <h2 className="font-serif text-xl font-normal text-primary">
-        Investment Estimate - {quote.programName}
+        Investment Estimate – {quote.programName}
       </h2>
       <p className="mt-1 text-sm font-medium text-primary">{quote.clientName || "Client name"}</p>
       <p className="mt-1 text-sm text-foreground-secondary">{quote.familyStructure}</p>
@@ -43,6 +43,7 @@ export function EstimatePreview({ quote }: { quote: Quote }) {
       <div className="mt-5 flex items-baseline justify-between border-y-2 border-primary py-2">
         <span className="text-base text-primary">Grand Total</span>
         <span className="text-lg font-semibold text-primary">
+          {quote.grandTotalApproximate ? "~" : ""}
           {formatCurrency(quote.grandTotal, quote.currency)}
         </span>
       </div>

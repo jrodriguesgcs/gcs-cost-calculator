@@ -49,30 +49,34 @@ export const stpCbiCalculator: ProgramCalculator = {
       { kind: "boolean", included: sponsor, label: "Non-Applicant Sponsor" },
     ]);
 
-    // --- Section 1: Upon Submission ---
+    // --- Section 1: Before Submission ---
     const sponsorFee = sponsor ? SPONSOR_FEE : 0;
-    const uponSubmissionLineItems = [
-      { label: "Legal and advisory fee", amount: LEGAL_ADVISORY_FEE },
+    const beforeSubmissionLineItems = [
       { label: "Application submission fee", amount: APPLICATION_SUBMISSION_FEE },
       { label: "Non-applicant sponsor fee", amount: sponsorFee },
     ];
-    const uponSubmissionSubtotal = LEGAL_ADVISORY_FEE + APPLICATION_SUBMISSION_FEE + sponsorFee;
+    const beforeSubmissionSubtotal = APPLICATION_SUBMISSION_FEE + sponsorFee;
 
-    // --- Section 2: Upon Approval-in-Principle ---
+    // --- Section 2: After Approval (upon approval-in-principle) ---
     const contribution = isSoloApplicant ? CONTRIBUTION_SOLO : CONTRIBUTION_WITH_FAMILY;
     const passportFee = PASSPORT_FEE_PER_PERSON * totalApplicants;
-    const uponApprovalLineItems = [
+    const afterApprovalLineItems = [
       { label: "Contribution to the National Transformation Fund", amount: contribution },
       { label: "Citizenship certificate, national ID & passport fee", amount: passportFee },
     ];
-    const uponApprovalSubtotal = contribution + passportFee;
+    const afterApprovalSubtotal = contribution + passportFee;
+
+    // --- Section 3: GCS Professional Fee ---
+    const gcsFeeLineItems = [{ label: "GCS legal and advisory fee", amount: LEGAL_ADVISORY_FEE }];
+    const gcsFeeSubtotal = LEGAL_ADVISORY_FEE;
 
     const sections: QuoteSection[] = [
-      { ...stpCbiConfig.sections[0], lineItems: uponSubmissionLineItems, subtotal: uponSubmissionSubtotal },
-      { ...stpCbiConfig.sections[1], lineItems: uponApprovalLineItems, subtotal: uponApprovalSubtotal },
+      { ...stpCbiConfig.sections[0], lineItems: beforeSubmissionLineItems, subtotal: beforeSubmissionSubtotal },
+      { ...stpCbiConfig.sections[1], lineItems: afterApprovalLineItems, subtotal: afterApprovalSubtotal },
+      { ...stpCbiConfig.sections[2], lineItems: gcsFeeLineItems, subtotal: gcsFeeSubtotal },
     ];
 
-    const grandTotal = uponSubmissionSubtotal + uponApprovalSubtotal;
+    const grandTotal = beforeSubmissionSubtotal + afterApprovalSubtotal + gcsFeeSubtotal;
 
     return {
       programName: stpCbiConfig.name,

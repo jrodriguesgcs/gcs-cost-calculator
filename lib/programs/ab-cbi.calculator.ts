@@ -159,38 +159,40 @@ export const abCbiCalculator: ProgramCalculator = {
     }
     const govFeeExtraPersons = personsAboveAllowance * govFeePerExtra;
 
-    // --- Due diligence ---
+    // --- Due diligence, itemized by rate tier rather than one bundled figure ---
     const ddPrincipal = DD_PRINCIPAL;
     const ddSpouse = spouseCount * (isShare ? DD_SPOUSE_SHARE : DD_SPOUSE_STANDARD);
-    const ddDependantsAndFamily =
-      under12 * DD_UNDER_12 +
-      age12to17 * DD_AGE_12_TO_17 +
-      age18Plus * DD_AGE_18_PLUS +
-      siblings12to17 * DD_AGE_12_TO_17 +
-      siblings18Plus * DD_AGE_18_PLUS +
-      parents * DD_AGE_18_PLUS;
+    const ddUnder12 = under12 * DD_UNDER_12;
+    const ddAge12to17 = (age12to17 + siblings12to17) * DD_AGE_12_TO_17;
+    const ddAge18PlusAndParents = (age18Plus + siblings18Plus + parents) * DD_AGE_18_PLUS;
+    const ddDependantsAndFamily = ddUnder12 + ddAge12to17 + ddAge18PlusAndParents;
     const ddBenefactors = benefactors * DD_BENEFACTOR;
 
     const passportFees = totalPersons * PASSPORT_FEE_PER_PERSON;
     const courierFee = isShare ? COURIER_SHARE : COURIER_STANDARD;
-    const bankFees = personsAged12Plus * BANK_FEE_PER_PERSON_12_PLUS + BANK_FEE_BASE;
+    const bankFeeBase = BANK_FEE_BASE;
+    const bankFeePerPerson = personsAged12Plus * BANK_FEE_PER_PERSON_12_PLUS;
+    const bankFees = bankFeeBase + bankFeePerPerson;
 
     const programmeCostsLineItems = [
       { label: `Investment / donation — ${investmentPathLabel(investmentPath)}`, amount: investment },
-      { label: "Stamp duty", amount: stampDuty },
-      { label: "Legal fees", amount: legalFees },
-      { label: "Escrow fee", amount: escrowFee },
-      { label: "Government processing fee — base", amount: govFeeBase },
-      { label: "Government processing fee — additional persons", amount: govFeeExtraPersons },
+      { label: "Stamp duty (real estate transaction)", amount: stampDuty },
+      { label: "Local attorney fees (real estate transaction)", amount: legalFees },
+      { label: "Escrow fee (real estate transaction)", amount: escrowFee },
+      { label: "Government application processing fee — base", amount: govFeeBase },
+      { label: "Government application processing fee — additional persons", amount: govFeeExtraPersons },
       { label: "Due diligence — principal applicant", amount: ddPrincipal },
       { label: "Due diligence — spouse", amount: ddSpouse },
-      { label: "Due diligence — dependants, siblings and parents", amount: ddDependantsAndFamily },
+      { label: "Due diligence — dependants/siblings under 12 (exempt)", amount: ddUnder12 },
+      { label: "Due diligence — dependants/siblings aged 12–17", amount: ddAge12to17 },
+      { label: "Due diligence — dependants/siblings 18+ and parents", amount: ddAge18PlusAndParents },
       { label: "Due diligence — benefactor(s)", amount: ddBenefactors },
-      { label: "Virtual interview", amount: VIRTUAL_INTERVIEW, approximate: true },
+      { label: "Virtual interview (see footnote)", amount: VIRTUAL_INTERVIEW, approximate: true },
       { label: "Passport fees", amount: passportFees },
       { label: "Courier", amount: courierFee },
-      { label: "Bank fees", amount: bankFees },
-      { label: "Local agent fee", amount: localAgentFee },
+      { label: "Bank fee — base", amount: bankFeeBase },
+      { label: "Bank fee — per person aged 12+", amount: bankFeePerPerson },
+      { label: "Local agent fee (negotiated — see footnote)", amount: localAgentFee },
     ];
     const programmeCostsSubtotal =
       investment +

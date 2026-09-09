@@ -63,8 +63,10 @@ export const dominicaCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
+    "All fees are indicative and subject to change by the Dominica government; read alongside the full GCS proposal.",
     "Children under 16 pay no due diligence fee; children 16–17 and dependants 18+ are charged at the same $4,000 rate.",
-    "The $4,200 government & processing flat fee covers: government processing ($1,000), interview ($1,000), passport processing ($1,200), courier ($350), bank fee ($350), and certification ($300).",
+    "Translation, notarization, and travel costs are not included and are typically arranged separately.",
+    "Processing timelines are guidelines only, at the discretion of the Dominica CBIU (Citizenship by Investment Unit).",
     "The GCS professional fee is separate from the government/programme cost above.",
   ],
 };

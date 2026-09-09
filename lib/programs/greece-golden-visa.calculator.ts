@@ -73,6 +73,11 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
     const insurance = totalAll * INSURANCE_PER_APPLICANT;
     const appFees = govtFee + insurance;
 
+    // GCS fee balance, itemized into its real components rather than one
+    // bundled figure — every one of these is already a separately-named
+    // constant/formula below, so showing them separately costs nothing and
+    // directly serves "where exactly is my money allocated."
+    let gcsBalanceLineItems: { label: string; amount: number }[];
     let gcsBalance: number;
     let investmentSectionTitle: string;
     let investmentLineItems: { label: string; amount: number }[];
@@ -86,6 +91,14 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
       const profChild = totalMinors * PROFESSIONAL_FEE_PER_CHILD;
       const gcsTotal = propConsult + adminPct + profAdult + profChild + DISBURSEMENTS;
       gcsBalance = gcsTotal - GCS_DEPOSIT;
+      gcsBalanceLineItems = [
+        { label: "Property consultancy fee (1.8% + VAT of property value)", amount: propConsult },
+        { label: "Consulting & admin fee (4% of property value)", amount: adminPct },
+        { label: "Professional fee — adults", amount: profAdult },
+        { label: "Professional fee — children", amount: profChild },
+        { label: "Disbursements", amount: DISBURSEMENTS },
+        { label: "Less: GCS fee deposit paid on engagement", amount: -GCS_DEPOSIT },
+      ];
 
       const transferTax = propertyTier * TRANSFER_TAX_RATE;
       const notaryFee = propertyTier * NOTARY_STAMP_RATE;
@@ -102,8 +115,15 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
       investmentSubtotal = propertyTier + propertyTaxes;
       investmentPrincipalExcluded = propertyTier;
     } else {
-      const gcsTotal = GCS_FEE_INTANGIBLE_MAIN + totalDependants * GCS_FEE_INTANGIBLE_PER_DEPENDANT;
+      const gcsFeeMain = GCS_FEE_INTANGIBLE_MAIN;
+      const gcsFeeDependants = totalDependants * GCS_FEE_INTANGIBLE_PER_DEPENDANT;
+      const gcsTotal = gcsFeeMain + gcsFeeDependants;
       gcsBalance = gcsTotal - GCS_DEPOSIT;
+      gcsBalanceLineItems = [
+        { label: "GCS fee — main applicant", amount: gcsFeeMain },
+        { label: "GCS fee — per dependant", amount: gcsFeeDependants },
+        { label: "Less: GCS fee deposit paid on engagement", amount: -GCS_DEPOSIT },
+      ];
 
       investmentSectionTitle = "Capital Investment";
       investmentLineItems = [{ label: "Investment amount", amount: investmentTier }];
@@ -119,7 +139,7 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
 
     // --- Section 3: Application Fees & GCS Balance ---
     const applicationBalanceLineItems = [
-      { label: "GCS professional fee balance", amount: gcsBalance },
+      ...gcsBalanceLineItems,
       { label: "Government fee — main applicant", amount: GOVT_FEE_MAIN },
       { label: "Government fee — adult dependants", amount: depAdults * GOVT_FEE_ADULT_DEPENDANT },
       { label: "Government fee — minor dependants", amount: depMinors * GOVT_FEE_MINOR_DEPENDANT },
@@ -170,6 +190,9 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
       familyStructure,
       sections,
       grandTotal,
+      // The ~€200/applicant health insurance line is approximate and feeds
+      // into this total — mark the total itself, not just the one line.
+      grandTotalApproximate: true,
       footnotes: greeceGoldenVisaConfig.footnotes,
     };
   },

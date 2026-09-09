@@ -68,36 +68,59 @@ export const vanuatuCbiCalculator: ProgramCalculator = {
       { kind: "count", count: otherDependants, singular: "Dependant", plural: "Dependants" },
     ]);
 
-    // --- Government contribution ---
-    const governmentContribution =
-      programme === "dsp"
-        ? DSP_PRINCIPAL_CONTRIBUTION +
-          DSP_SPOUSE_CONTRIBUTION * spouseCount +
-          DSP_DEPENDANT_CONTRIBUTION * otherDependants
-        : CIIP_FLAT_CONTRIBUTION + CIIP_EXTRA_PERSON_CONTRIBUTION * Math.max(0, totalApplicants - 4);
+    // --- Government contribution, itemized per programme ---
+    let contributionLineItems: { label: string; amount: number }[];
+    let governmentContribution: number;
+    if (programme === "dsp") {
+      const spouseContribution = DSP_SPOUSE_CONTRIBUTION * spouseCount;
+      const dependantContribution = DSP_DEPENDANT_CONTRIBUTION * otherDependants;
+      governmentContribution = DSP_PRINCIPAL_CONTRIBUTION + spouseContribution + dependantContribution;
+      contributionLineItems = [
+        { label: "Government contribution — principal applicant", amount: DSP_PRINCIPAL_CONTRIBUTION },
+        { label: "Government contribution — spouse", amount: spouseContribution },
+        { label: "Government contribution — other dependants", amount: dependantContribution },
+      ];
+    } else {
+      const extraPersonContribution = CIIP_EXTRA_PERSON_CONTRIBUTION * Math.max(0, totalApplicants - 4);
+      governmentContribution = CIIP_FLAT_CONTRIBUTION + extraPersonContribution;
+      contributionLineItems = [
+        { label: "Government contribution — flat (covers up to 4 persons)", amount: CIIP_FLAT_CONTRIBUTION },
+        { label: "Government contribution — persons above 4", amount: extraPersonContribution },
+      ];
+    }
 
-    // --- Minor fees: Birth Registration/ID Card + balance ---
+    // --- Birth Registration/ID Card + the remaining incidental fees
+    // (application fee, citizenship certificate, oath taking, DHL courier)
+    // — the source only supplies a pooled total for the latter group, not
+    // per-item amounts, so it stays one residual line (see footnote for
+    // what it covers) rather than a guessed split. Renamed away from
+    // "Minor fees" — in the source that means "incidental," not "child" —
+    // to avoid reading as an age-based charge next to the programme's own
+    // per-person dependant fields.
     const birthRegistrationFee = BIRTH_REGISTRATION_FEE_PER_PERSON * totalApplicants;
-    const pooledMinorFees =
+    const pooledIncidentalFees =
       (programme === "dsp" ? DSP_MINOR_FEES_PRINCIPAL : CIIP_MINOR_FEES_PRINCIPAL) +
       MINOR_FEES_PER_ADDITIONAL_PERSON * (totalApplicants - 1);
-    const minorFeesBalance = pooledMinorFees - birthRegistrationFee;
+    const incidentalFeesBalance = pooledIncidentalFees - birthRegistrationFee;
 
-    // --- Biometrics ---
-    const biometricsSubmissionFee = biometricsRate(biometricsLocation) * totalApplicants;
+    // --- Biometrics: mobile-consul is a real but unknown cost ("by custom
+    // quotation"), so it renders as null/TBC, not a literal $0 that would
+    // read as "free" ---
+    const biometricsSubmissionFee =
+      biometricsLocation === "mobile" ? null : biometricsRate(biometricsLocation) * totalApplicants;
 
     const programmeCostsLineItems = [
-      { label: "Government contribution", amount: governmentContribution },
-      { label: "Minor fees – Birth Registration/ID Card", amount: birthRegistrationFee },
-      { label: "Minor fees – balance", amount: minorFeesBalance },
+      ...contributionLineItems,
+      { label: "Birth Registration/ID Card fee", amount: birthRegistrationFee },
+      { label: "Incidental fees — balance (application, certificate, oath, courier)", amount: incidentalFeesBalance },
       { label: "Biometrics submission fee", amount: biometricsSubmissionFee },
       { label: "FIU due diligence fee", amount: FIU_DUE_DILIGENCE_FEE },
     ];
     const programmeCostsSubtotal =
       governmentContribution +
       birthRegistrationFee +
-      minorFeesBalance +
-      biometricsSubmissionFee +
+      incidentalFeesBalance +
+      (biometricsSubmissionFee ?? 0) +
       FIU_DUE_DILIGENCE_FEE;
 
     const gcsFeeLineItems = [{ label: "GCS professional fee", amount: GCS_PROFESSIONAL_FEE }];
