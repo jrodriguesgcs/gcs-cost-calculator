@@ -12,19 +12,38 @@ import { formatAmount, formatCurrency } from "../currency";
 // (this is a fee estimate, not a letter) and isn't used.
 const NAVY = "#000957";
 const BODY = "#343750";
-const ACCENT = "#3F8CFF";
+// The section "timing" label (e.g. "Months 1–3") is the one place small
+// (9.5pt, non-bold) text was set in the raw brand accent #3F8CFF — that
+// only reaches ~3.27:1 against white, well under WCAG AA's 4.5:1 for
+// normal-size text (confirmed by computing relative luminance by hand; the
+// impeccable skill's audit is web-only and doesn't check PDFs). --doc-badge
+// from the design system's own §1.10 document palette is the closest
+// same-family blue that actually clears AA (~5.93:1) — used here instead
+// of the raw accent for any small blue text; a bigger/bolder accent use
+// could still use the brand accent directly under the 3:1 large-text rule.
+const ACCENT_TEXT = "#3D51E8";
 const FOOTER_URL_COLOR = "#0F1A2D";
-const PAGE_NUM_COLOR = "#999999";
 
 // Document-palette tokens (reference doc §1.10) — the finer-grained
 // neutral/border scale meant for print/PDF contexts specifically.
-const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line, and (for real contrast) the footnotes
+const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line, the footnotes, and (for real contrast; replaces the old #999999 that only hit ~2.85:1) the footer page count
 const DOC_BORDER_LIGHT = "#ECEDF5"; // lightest divider (most common) — line-item and footer rules
+const DOC_SURFACE = "#F7F8FD"; // "light card/box background" (§1.10) — used to give the Grand Total and alternating line-item rows real visual separation instead of relying on font-size alone
 
 // Page-margin bands reserved for the repeating header/footer (see
 // render-pdf.ts's `page.pdf({ margin })`) — exported so both sides of the
 // header/footer-vs-content-height math stay in sync.
-export const HEADER_MARGIN_MM = 35;
+//
+// HEADER_MARGIN_MM was sized (35mm) for the original 11mm-tall logo +
+// three-line office-address block in the header (see git history on
+// renderHeaderTemplate). Both were later removed/shrunk down to a single
+// 6mm logo, but this constant was never revisited — leaving ~29mm of dead
+// white space between the logo and the title on every generated PDF, and
+// needlessly shrinking the auto-shrink content budget in render-pdf.ts.
+// 18mm gives the 6mm logo a comfortable ~12mm gap before content starts
+// (roughly the same visual breathing room the old 35mm gave the taller
+// 11mm header) without the leftover slack.
+export const HEADER_MARGIN_MM = 18;
 export const FOOTER_MARGIN_MM = 16;
 export const PAGE_SIDE_MARGIN_MM = 20;
 
@@ -127,7 +146,7 @@ export function renderFooterTemplate(): string {
   return `<style>${fontFaceCss}</style>
 <div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; display:flex; justify-content:space-between; font-family:'Heebo',sans-serif; font-size:10pt;">
   <span style="color:${FOOTER_URL_COLOR};">GLOBALCITIZENSOLUTIONS.COM</span>
-  <span style="color:${PAGE_NUM_COLOR};"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+  <span style="color:${DOC_MUTED_ALT};"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
 </div>`;
 }
 
@@ -139,13 +158,22 @@ export function renderFooterTemplate(): string {
  * so they display correctly regardless of how many physical pages the
  * content ends up spanning.
  *
- * `scale` (0 < scale <= 1) is the auto-shrink lever used by the PDF route
- * to prefer fitting everything on one A4 page — it scales font sizes and
- * vertical spacing together via a CSS custom property. Once `scale` hits
- * its floor, genuinely dense quotes are allowed to flow onto a second page
- * rather than being shrunk further into illegibility.
+ * `scale` is the auto-shrink lever used by the PDF route to prefer fitting
+ * everything on one A4 page. Type and spacing shrink independently (two CSS
+ * custom properties, not one) so a dense quote compresses its padding/
+ * margins first — the part that can give without hurting legibility —
+ * before it ever touches font size: `render-pdf.ts`'s shrink loop holds
+ * `scale.type` at 1 and walks `scale.space` down to its floor first, only
+ * then starts reducing `scale.type`. Once both floors hit, genuinely dense
+ * quotes flow onto a second page rather than being shrunk into illegibility.
+ * Footnotes opt out of `scale.type` entirely (see the `.footnotes` rule
+ * below) so disclaimers can never shrink below a readable size no matter
+ * how dense the quote is.
  */
-export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
+export function renderEstimateHtml(
+  quote: Quote,
+  scale: { type: number; space: number } = { type: 1, space: 1 },
+): string {
   const fontFaceCss = getFontFaceCss();
 
   const sectionsHtml = quote.sections
@@ -161,7 +189,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
             ${section.lineItems
               .map(
                 (item) => `
-              <tr>
+              <tr${item.amount === null ? ' class="tbc"' : ""}>
                 <td class="label">${escapeHtml(item.label)}</td>
                 <td class="amount">${formatAmount(item.amount, quote.currency, item.approximate)}</td>
               </tr>`,
@@ -191,14 +219,16 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
 <meta charset="utf-8" />
 <style>
   ${fontFaceCss}
-  :root { --scale: ${scale}; }
+  :root { --scale-type: ${scale.type}; --scale-space: ${scale.space}; }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
     font-family: "Heebo", sans-serif;
     color: ${BODY};
-    font-size: calc(11pt * var(--scale));
+    font-size: calc(11pt * var(--scale-type));
     line-height: 1.4;
+    /* §2.2/§2.4 tracking-tight default for body copy. */
+    letter-spacing: -0.01em;
   }
   .page {
     /* Deliberately no min-height here: render-pdf.ts measures this
@@ -215,45 +245,68 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
   h1 {
     font-family: "Yrsa", serif;
     font-weight: 400;
-    font-size: calc(26pt * var(--scale));
+    font-size: calc(26pt * var(--scale-type));
     color: ${NAVY};
-    margin: 0 0 calc(4mm * var(--scale)) 0;
+    margin: 0 0 calc(4mm * var(--scale-space)) 0;
+    /* §2.2/§2.4 tracking-tight for serif/display headings. */
+    letter-spacing: -0.025em;
   }
   .client-name {
-    font-size: calc(13pt * var(--scale));
+    font-size: calc(13pt * var(--scale-type));
     color: ${NAVY};
-    margin: 0 0 calc(2mm * var(--scale)) 0;
+    margin: 0 0 calc(2mm * var(--scale-space)) 0;
   }
   .family-structure {
-    font-size: calc(11pt * var(--scale));
+    font-size: calc(11pt * var(--scale-type));
     color: ${DOC_MUTED_ALT};
-    margin: 0 0 calc(8mm * var(--scale)) 0;
+    margin: 0 0 calc(8mm * var(--scale-space)) 0;
   }
-  .quote-section { margin-bottom: calc(6mm * var(--scale)); break-inside: avoid; }
+  .quote-section {
+    /* --gap-xl ("section separation", §3) — was --gap-lg ("section
+       internal"), a semantic-tier too tight for space between whole
+       sections. */
+    margin-bottom: calc(8mm * var(--scale-space));
+    break-inside: avoid;
+  }
   .section-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     border-bottom: 2px solid ${NAVY};
-    padding-bottom: calc(1.5mm * var(--scale));
-    margin-bottom: calc(2mm * var(--scale));
+    padding-bottom: calc(1.5mm * var(--scale-space));
+    margin-bottom: calc(2mm * var(--scale-space));
   }
   .section-header h2 {
     font-family: "Heebo", sans-serif;
     font-weight: 500;
-    font-size: calc(13pt * var(--scale));
+    font-size: calc(13pt * var(--scale-type));
     color: ${NAVY};
     margin: 0;
+    letter-spacing: -0.025em;
   }
   .section-header .timing {
-    font-size: calc(9.5pt * var(--scale));
-    color: ${ACCENT};
+    /* This is the "when"/"where the money is applied" axis of the whole
+       document — an overline treatment (§2.4's .text-overline, adapted for
+       print) makes it read as a structural label next to the section
+       title, not a footnote-weight aside. */
+    font-size: calc(9pt * var(--scale-type));
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: ${ACCENT_TEXT};
   }
   table.line-items { width: 100%; border-collapse: collapse; }
   table.line-items td {
-    padding: calc(1mm * var(--scale)) 0;
-    font-size: calc(10.5pt * var(--scale));
+    /* ~2.5mm vertical padding, close to the design system's own print-table
+       spec (§4.7: 15px/16px) — was 1mm, roughly 4x too tight to "breathe". */
+    padding: calc(2.5mm * var(--scale-space)) 0;
+    font-size: calc(10.5pt * var(--scale-type));
   }
+  /* Subtle zebra striping on line items (own read of the pdf-design skill's
+     budget-table pattern, adapted to gcs-design-system's own doc-surface
+     token rather than its journalism-branded palette) — helps the eye track
+     a row across to its amount on a dense, many-line section. */
+  table.line-items tbody tr:nth-child(even) td { background: ${DOC_SURFACE}; }
   table.line-items td.amount {
     text-align: right;
     white-space: nowrap;
@@ -262,40 +315,54 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
        which stays in Yrsa as a single hero figure, not a tabular one. */
     font-family: "JetBrains Mono", monospace;
   }
+  /* A TBC/null amount must never read like a real figure at a glance — the
+     client should always know exactly how much, or exactly which lines
+     aren't fixed yet. */
+  table.line-items tr.tbc td {
+    font-style: italic;
+    color: ${DOC_MUTED_ALT};
+  }
   table.line-items tfoot tr.subtotal td {
     border-top: 1px solid ${DOC_BORDER_LIGHT};
-    padding-top: calc(1.5mm * var(--scale));
+    padding-top: calc(1.5mm * var(--scale-space));
     font-weight: 600;
     color: ${NAVY};
   }
   .grand-total {
+    /* A surface block (§1.10 --doc-surface), not just larger type, so the
+       single most important number in the document announces itself over a
+       section subtotal rather than reading as one more table row. */
+    background: ${DOC_SURFACE};
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     border-top: 2px solid ${NAVY};
     border-bottom: 2px solid ${NAVY};
-    padding: calc(3mm * var(--scale)) 0;
-    margin: calc(2mm * var(--scale)) 0 calc(8mm * var(--scale)) 0;
+    padding: calc(4mm * var(--scale-space));
+    margin: calc(2mm * var(--scale-space)) 0 calc(8mm * var(--scale-space)) 0;
     break-inside: avoid;
   }
   .grand-total .label {
     font-family: "Yrsa", serif;
-    font-size: calc(14pt * var(--scale));
+    font-size: calc(14pt * var(--scale-type));
     color: ${NAVY};
   }
   .grand-total .amount {
     font-family: "Yrsa", serif;
-    font-size: calc(16pt * var(--scale));
+    font-size: calc(16pt * var(--scale-type));
     color: ${NAVY};
   }
   .footnotes {
-    margin-top: calc(6mm * var(--scale));
-    font-size: calc(8pt * var(--scale));
+    margin-top: calc(6mm * var(--scale-space));
+    /* Fixed, not scaled by --scale-type: disclaimers/caveats must never
+       shrink below a readable size just because a dense quote needed to
+       compress elsewhere to fit one page. */
+    font-size: 8pt;
     color: ${DOC_MUTED_ALT};
-    padding-left: calc(4mm * var(--scale));
+    padding-left: calc(4mm * var(--scale-space));
     break-inside: avoid;
   }
-  .footnotes li { margin-bottom: calc(1mm * var(--scale)); }
+  .footnotes li { margin-bottom: calc(2mm * var(--scale-space)); }
 </style>
 </head>
 <body>

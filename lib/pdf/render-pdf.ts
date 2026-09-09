@@ -23,18 +23,24 @@ const MM_TO_PX = 96 / 25.4;
 const PAGE_SAFETY_MARGIN_PX = 20;
 const CONTENT_HEIGHT_PX = (297 - HEADER_MARGIN_MM - FOOTER_MARGIN_MM) * MM_TO_PX - PAGE_SAFETY_MARGIN_PX;
 
-// One page is preferred, not forced: shrink text/spacing down to this
-// floor to try to fit a dense quote on one page, but stop there — beyond
-// this point shrinking further would make the document hard to read.
-// 0.75 comfortably covers a normal-sized quote across programs with either
-// 4 sections (Malta MPRP, needs ~0.81) or 5 (Italy Golden Visa, needs
-// ~0.77) — a genuinely dense quote (many dependants pushing several extra
-// fee lines into every section) is still allowed to flow onto a second
-// page instead of being shrunk further. Unlike the old 0.72 floor, this is
-// paired with the footnote contrast/size fix, so it's never relied on for
-// readability alone.
-const MIN_SCALE = 0.75;
-const SCALE_STEP = 0.03;
+// One page is preferred, not forced: shrink to try to fit a dense quote on
+// one page, but stop there — beyond this point shrinking further would make
+// the document hard to read. Type and spacing shrink independently (see
+// print-template.ts's --scale-type/--scale-space) and are walked down in
+// two phases below: spacing compresses first (it can give a lot before it
+// hurts readability), and only once spacing bottoms out does type start
+// shrinking, down to a much shallower floor. Footnotes don't scale with
+// type at all (fixed 8pt in print-template.ts), so disclaimers are never
+// affected by either floor.
+const SPACE_MIN_SCALE = 0.5;
+const SPACE_SCALE_STEP = 0.05;
+// A normal-sized quote (4-5 sections) should rarely need to shrink type at
+// all now that spacing absorbs most of the compression — this floor only
+// matters for genuinely dense quotes (many dependants pushing several
+// extra fee lines into every section), which flow to a second page instead
+// of shrinking past it.
+const TYPE_MIN_SCALE = 0.85;
+const TYPE_SCALE_STEP = 0.03;
 
 async function launchBrowser(): Promise<Browser> {
   const puppeteer = await import("puppeteer-core");
@@ -110,15 +116,26 @@ export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
     page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123 }); // A4 @ 96dpi
 
-    let scale = 1;
+    const scale = { type: 1, space: 1 };
     let html = renderEstimateHtml(quote, scale);
     await page.setContent(html, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
 
     let contentHeightPx = await measureContentHeightPx(page);
 
-    while (contentHeightPx > CONTENT_HEIGHT_PX && scale > MIN_SCALE) {
-      scale = Math.max(MIN_SCALE, scale - SCALE_STEP);
+    // Phase 1: compress spacing first, type stays at 1.
+    while (contentHeightPx > CONTENT_HEIGHT_PX && scale.space > SPACE_MIN_SCALE) {
+      scale.space = Math.max(SPACE_MIN_SCALE, scale.space - SPACE_SCALE_STEP);
+      html = renderEstimateHtml(quote, scale);
+      await page.setContent(html, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+      contentHeightPx = await measureContentHeightPx(page);
+    }
+
+    // Phase 2: spacing is at its floor and it's still overflowing — only
+    // now start shrinking type, down to its own (much shallower) floor.
+    while (contentHeightPx > CONTENT_HEIGHT_PX && scale.type > TYPE_MIN_SCALE) {
+      scale.type = Math.max(TYPE_MIN_SCALE, scale.type - TYPE_SCALE_STEP);
       html = renderEstimateHtml(quote, scale);
       await page.setContent(html, { waitUntil: "load" });
       await page.evaluate(() => document.fonts.ready);
