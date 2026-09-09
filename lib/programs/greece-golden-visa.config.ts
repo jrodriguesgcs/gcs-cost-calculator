@@ -6,15 +6,12 @@ import { ProgramConfig } from "./types";
 // for the formula logic.
 //
 // Two investment tracks, like Italy: Track A (Tangible, a real-estate
-// purchase) and Track B (Intangible, capital/funds/bonds/shares). Unlike
-// Italy — which includes its investment amount in the grand total — this
-// source's own script explicitly excludes the property price/investment
-// principal from the total outlay while still including the government
-// property taxes that accompany a real-estate purchase (source's own
-// comments: "total outlay excl. property price" / "excl. investment").
-// A Permit Renewal section (every 5 years) is included for visibility but
-// excluded from the grand total, same convention as Italy's own renewal
-// section.
+// purchase) and Track B (Intangible, capital/funds/bonds/shares). The
+// source script itself excludes the property price/investment principal
+// from its own "total outlay" figure — this tool deliberately does not
+// follow that: the Grand Total always sums every section shown on the
+// page, including the investment principal and the Permit Renewal
+// section, so a client never has to wonder what's missing from the total.
 
 export const greeceGoldenVisaConfig: ProgramConfig = {
   slug: "greece-golden-visa",
@@ -93,13 +90,13 @@ export const greeceGoldenVisaConfig: ProgramConfig = {
     // ("Property Purchase & Taxes" vs. "Capital Investment").
     { key: "investment", title: "Investment", timing: "Months 1–3 — application submission" },
     { key: "applicationBalance", title: "Application Fees & GCS Balance", timing: "Months 2–5 — processing & biometrics" },
-    { key: "renewal", title: "Permit Renewal", timing: "Every 5 years — not included in the total below" },
+    { key: "renewal", title: "Permit Renewal", timing: "Every 5 years" },
   ],
   footnotes: [
     "All fees are indicative and subject to change by the Greek government. The 4–6+ month timeline is a guideline only, at the discretion of the Greek authorities; read alongside the full GCS proposal.",
     "The GCS professional fee is split into a €7,000 deposit (due on engagement, Section 1) and the balance (Section 3) — each balance component above is itemized individually; the deposit already paid is subtracted from the balance so the two sections never double-count it.",
     "Government application fee: €2,016 main applicant, €166 per adult dependant, €16 per minor dependant, plus ~€200 health insurance per applicant — repeated at each 5-year renewal. Property taxes (transfer tax 3.09%, notary/stamp duty 1.5%, registration 0.77%) apply to the tangible track only, estimated on the tier selected.",
-    "The total below excludes the underlying property purchase price / investment principal — that capital buys an asset the applicant retains (or remains invested), rather than being a programme cost — while still including the government property taxes that accompany a real-estate purchase.",
+    "The property purchase price / investment principal shown above buys an asset the applicant retains (or remains invested) — unlike every other line, it isn't spent on a programme cost, even though it's included in the Grand Total.",
     "Short-term rentals (e.g. Airbnb) are prohibited for Golden Visa holders — violations may cancel residency and incur a €50,000 fine. Dependent parents may be included with no age limit; unmarried partners are ineligible (civil unions recognised); same-sex married spouses eligible since February 2024.",
     "Greek citizenship may be available after 7 years of physical residence (min. 183 days/year), subject to B1 Greek language proficiency and integration requirements; citizenship should be consulted separately.",
   ],

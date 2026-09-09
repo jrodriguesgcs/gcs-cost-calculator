@@ -18,8 +18,8 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
     const included = Boolean(value);
     const labelId = `${variable.key}-label`;
     return (
-      <div className="flex items-center justify-between py-2">
-        <span id={labelId} className="text-sm text-foreground-secondary">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2">
+        <span id={labelId} className="shrink-0 text-sm text-foreground-secondary">
           {variable.label}
         </span>
         <div
@@ -57,8 +57,8 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
     const inputId = `${variable.key}-input`;
     return (
       <div className="py-2">
-        <div className="flex items-center justify-between">
-          <label htmlFor={inputId} className="text-sm text-foreground-secondary">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <label htmlFor={inputId} className="shrink-0 text-sm text-foreground-secondary">
             {variable.label}
           </label>
           <input
@@ -87,8 +87,8 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
   // select
   const selectId = `${variable.key}-select`;
   return (
-    <div className="flex items-center justify-between py-2">
-      <label htmlFor={selectId} className="text-sm text-foreground-secondary">
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2">
+      <label htmlFor={selectId} className="shrink-0 text-sm text-foreground-secondary">
         {variable.label}
       </label>
       <select

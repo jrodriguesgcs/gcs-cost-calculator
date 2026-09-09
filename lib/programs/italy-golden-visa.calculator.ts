@@ -109,10 +109,12 @@ export const italyGoldenVisaCalculator: ProgramCalculator = {
       { ...italyGoldenVisaConfig.sections[4], lineItems: renewal.lineItems, subtotal: renewal.subtotal },
     ];
 
-    // One-time grand total: engagement + submission + permit + investment.
-    // Renewal is recurring and shown separately, matching Malta MPRP's
-    // treatment of its Annual Obligations section.
-    const grandTotal = engagementSubtotal + submissionSubtotal + permit.subtotal + investmentSubtotal;
+    // Grand total = every section shown (1–5), no exceptions — per the
+    // tool-wide rule that the Grand Total must always equal the sum of
+    // what's on the page, not a subset requiring a footnote to explain the
+    // gap.
+    const grandTotal =
+      engagementSubtotal + submissionSubtotal + permit.subtotal + investmentSubtotal + renewal.subtotal;
 
     return {
       programName: italyGoldenVisaConfig.name,
