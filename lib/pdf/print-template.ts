@@ -367,7 +367,7 @@ export function renderEstimateHtml(
 </head>
 <body>
   <div class="page" id="estimate-page">
-    <h1>Investment Estimate - ${escapeHtml(quote.programName)}</h1>
+    <h1>Investment Estimate – ${escapeHtml(quote.programName)}</h1>
     <div class="client-name">${escapeHtml(quote.clientName)}</div>
     <div class="family-structure">${escapeHtml(quote.familyStructure)}</div>
 
@@ -375,7 +375,7 @@ export function renderEstimateHtml(
 
     <div class="grand-total">
       <span class="label">Grand Total</span>
-      <span class="amount">${formatCurrency(quote.grandTotal, quote.currency)}</span>
+      <span class="amount">${quote.grandTotalApproximate ? "~" : ""}${formatCurrency(quote.grandTotal, quote.currency)}</span>
     </div>
 
     <ul class="footnotes">

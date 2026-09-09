@@ -115,14 +115,16 @@ export const dominicaCbiCalculator: ProgramCalculator = {
       { label: "Due diligence fees", amount: dueDiligence },
       { label: "Passport fees", amount: passportFees },
       { label: "Certificate of Naturalization fee", amount: certificateFees },
-      {
-        label: "Government & processing flat fees (processing, interview, passport processing, courier, bank, certification)",
-        amount: GOV_AND_PROCESSING_FLAT_TOTAL,
-      },
+      { label: "Government processing fee", amount: GOV_PROCESSING_FEE },
+      { label: "Interview fee", amount: INTERVIEW_FEE },
+      { label: "Passport processing fee", amount: PASSPORT_PROCESSING_FEE },
+      { label: "Courier fee", amount: COURIER_FEE },
+      { label: "Bank fee", amount: BANK_FEE },
+      { label: "Certification fee", amount: CERTIFICATION_FEE },
       { label: `Qualifying investment — ${isRealEstate ? "Real Estate" : "EDF Donation"}`, amount: qualifyingInvestment },
       { label: "Share transfer fee (real estate only)", amount: shareTransferFee },
-      { label: "Government fee (real estate only)", amount: realEstateGovFee },
-      { label: "Agency fee", amount: AGENCY_FEE },
+      { label: "Government property transfer duty (real estate only)", amount: realEstateGovFee },
+      { label: "Local agency fee", amount: AGENCY_FEE },
     ];
     const programmeCostsSubtotal =
       dueDiligence +

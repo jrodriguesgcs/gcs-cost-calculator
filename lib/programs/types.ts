@@ -79,6 +79,8 @@ export interface Quote {
   sections: QuoteSection[];
   /** One-time grand total (per spec: Section 1 + Section 2 + Section 3, real estate included, annual obligations excluded) */
   grandTotal: number;
+  /** Set when grandTotal is built from at least one `approximate: true` line item, so the PDF can prefix it with "~" too — a client must never read a partly-estimated total as a precise figure. */
+  grandTotalApproximate?: boolean;
   footnotes: string[];
 }
 

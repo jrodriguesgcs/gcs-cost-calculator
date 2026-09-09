@@ -58,11 +58,15 @@ export const latviaGoldenVisaConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "The D-visa applies to nationals of countries requiring a visa to enter Latvia. Upon approval, if a visa is required for entry, a national long-stay (D) visa is issued to allow the applicant obtain the residence permit card.",
-    "Document preparation (legalisation and translation, where applicable) is included above as an approximate, per-applicant third-party cost and may not apply to every applicant.",
+    "All fees are indicative and subject to change by the Latvian government; read alongside the full GCS proposal.",
+    "The D-visa applies to nationals of countries requiring a visa to enter Latvia. Upon approval, if a visa is required for entry, a national long-stay (D) visa is issued to allow the applicant to obtain the residence permit card — the D-visa itself carries no separate government fee beyond the residence-permit costs already listed above.",
+    "Document preparation (legalisation and translation, where applicable) is included above as a flat, approximate third-party cost per application — not per applicant — and may not apply to every case.",
     "The Residence permit application is paid when the RP application is submitted. The faster PMLP (authorities) must review the file, the higher the state fee. Standard €160 (30 days) · Expedited €280 (10 working days) · Urgent €560 (5 working days).",
     "The Residence permit registration is paid after approval, when the permit is registered in Latvia (biometrics submitted). Same speed choice applies again. Standard €75 (30 days) · Expedited €140 (10 working days) · Urgent €290 (5 working days).",
     "The Residence permit card issuance is paid for production of the physical Residence Permit card. Same speed choice applies again. Standard €45 (10 working days) · Urgent €80 (2 working days).",
     "Expedited and urgent processing options are available to applicants of low-risk nationalities only.",
+    "Bank wire and currency-conversion costs for transferring investment funds into Latvia are not included above and vary by originating bank and currency.",
+    "Processing timelines are guidelines only, at the discretion of the Latvian authorities (PMLP).",
+    "The Grand Total covers both sections shown (Programme Costs and the GCS Professional Fee) — it includes the investment amount itself (business capital / property price / bank deposit, per the selected track).",
   ],
 };

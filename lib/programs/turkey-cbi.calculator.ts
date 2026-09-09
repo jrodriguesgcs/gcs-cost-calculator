@@ -87,7 +87,7 @@ export const turkeyCbiCalculator: ProgramCalculator = {
       { label: "Title deed tax (4% of property value)", amount: titleDeedTax },
       { label: "Title deed processing tax", amount: titleDeedProcessingTax },
       { label: "Real estate agent fee (2% of property value)", amount: agentFee },
-      { label: "Government processing fee", amount: GOVERNMENT_PROCESSING_FEE, approximate: true },
+      { label: "Government application & certificate of conformity fee", amount: GOVERNMENT_PROCESSING_FEE, approximate: true },
       { label: "Visa tax, residence permit tax, notary & translation fee", amount: visaResidenceNotary },
       { label: "ID card and passport fees", amount: idPassport, approximate: true },
       { label: "Health insurance", amount: healthInsurance, approximate: true },

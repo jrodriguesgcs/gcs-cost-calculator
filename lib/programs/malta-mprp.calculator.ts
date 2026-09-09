@@ -62,7 +62,7 @@ export const maltaMprpCalculator: ProgramCalculator = {
     const residenceCardFee = totalApplicants * 100;
     const applicationLineItems = [
       { label: "GCS professional fee — 50% balance", amount: gcsTotal / 2 },
-      { label: "Admin fee (non-refundable)", amount: 15_000 },
+      { label: "Government administrative fee — instalment (non-refundable)", amount: 15_000 },
       { label: "Residence card — per applicant", amount: residenceCardFee },
     ];
     const applicationSubtotal = gcsTotal / 2 + 15_000 + residenceCardFee;
@@ -75,12 +75,12 @@ export const maltaMprpCalculator: ProgramCalculator = {
     const govContributionAdults = adults * 7_500;
     const approvalResidencePermitFee = totalApplicants * 100;
     const approvalLineItems = [
-      { label: "Admin fee — balance", amount: 45_000 },
+      { label: "Government administrative fee — balance (non-refundable)", amount: 45_000 },
       { label: realEstateLabel, amount: realEstateCost },
       { label: "Government contribution — main applicant", amount: 37_000 },
       { label: "Government contribution — adult dependants", amount: govContributionAdults },
       { label: "Philanthropic donation", amount: 2_000 },
-      { label: "Residence permit — per applicant/yr", amount: approvalResidencePermitFee },
+      { label: "Residence permit — per applicant (first issuance)", amount: approvalResidencePermitFee },
     ];
     const approvalSubtotal =
       45_000 + realEstateCost + 37_000 + govContributionAdults + 2_000 + approvalResidencePermitFee;
@@ -98,8 +98,8 @@ export const maltaMprpCalculator: ProgramCalculator = {
           ]
         : []),
       { label: "Annual compliance filing", amount: 1_000 },
-      { label: "Residence permit — per applicant", amount: annualResidencePermitFee },
-      { label: "Medical insurance", amount: null },
+      { label: "Residence permit — per applicant (annual renewal)", amount: annualResidencePermitFee },
+      { label: "Medical insurance (arranged separately — see footnote)", amount: null },
     ];
     const annualSubtotal =
       (isRental ? REAL_ESTATE_RENTAL_YEARLY_MIN : 0) + 1_000 + annualResidencePermitFee;

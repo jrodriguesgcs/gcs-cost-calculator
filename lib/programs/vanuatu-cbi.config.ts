@@ -55,7 +55,10 @@ export const vanuatuCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "Minor fees cover the compulsory Birth Registration/ID Card per applicant, plus a balance covering the application fee, citizenship certificate, oath taking, and DHL courier. Biometrics are charged separately.",
-    "Biometrics: $1,000 per person in-country at the Vanuatu Immigration Service in Port Vila, or $3,000 per person overseas at the Vanuatu consulate in Dubai or Hong Kong. A mobile consul visit is available by custom quotation and is not included in the total above.",
+    "All fees are indicative and subject to change by the Vanuatu government; read alongside the full GCS proposal.",
+    "\"Incidental fees\" (a source-schedule term, not an age category) cover the application fee, citizenship certificate, oath taking, and DHL courier — separate from the per-applicant Birth Registration/ID Card fee shown above it, and from biometrics, which is priced separately below.",
+    "Biometrics: $1,000 per person in-country at the Vanuatu Immigration Service in Port Vila, or $3,000 per person overseas at the Vanuatu consulate in Dubai or Hong Kong. A mobile consul visit is priced by custom quotation and shown as TBC — it is not included in the total above.",
+    "Translation and travel costs are not included and are typically arranged separately.",
+    "Processing timelines are guidelines only, at the discretion of the Vanuatu authorities.",
   ],
 };

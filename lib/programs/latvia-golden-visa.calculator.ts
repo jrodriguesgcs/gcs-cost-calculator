@@ -28,6 +28,7 @@ type Rate = PerPersonRate | FlatRate;
 interface TrackRow {
   label: string;
   rate: Rate;
+  approximate?: boolean;
 }
 
 interface TrackDefinition {
@@ -66,11 +67,11 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Medical insurance", rate: MEDICAL_INSURANCE },
       { label: "Residence permit registration (standard 30 days)", rate: perPerson(75, 75, 75) },
       { label: "Residence permit card issuance (standard 10 working days)", rate: perPerson(45, 45, 45) },
-      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION },
+      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION, approximate: true },
     ],
     gcsFee: [
       { label: "GCS legal and advisory fee", rate: flat(10_000) },
-      { label: "Corporate Legal Support", rate: flat(10_000) },
+      { label: "Corporate legal support — company registration & compliance", rate: flat(10_000) },
     ],
     hasAddressDeclaration: true,
     hasEscrowNote: false,
@@ -85,11 +86,11 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Medical insurance", rate: MEDICAL_INSURANCE },
       { label: "Residence permit registration (standard 30 days)", rate: perPerson(75, 75, 75) },
       { label: "Residence permit card issuance (10 working days)", rate: perPerson(45, 45, 45) },
-      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION },
+      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION, approximate: true },
     ],
     gcsFee: [
       { label: "GCS legal and advisory fee", rate: flat(10_000) },
-      { label: "Corporate Legal Support", rate: flat(10_000) },
+      { label: "Corporate legal support — company registration & compliance", rate: flat(10_000) },
     ],
     hasAddressDeclaration: true,
     hasEscrowNote: false,
@@ -107,11 +108,11 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Residence permit card issuance (10 working days)", rate: perPerson(45, 45, 45) },
       { label: "Notary fees", rate: flat(1_500) },
       { label: "Land registry property registration (1.5%, min.)", rate: flat(3_750) },
-      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION },
+      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION, approximate: true },
     ],
     gcsFee: [
       { label: "GCS legal and advisory fee", rate: flat(10_000) },
-      { label: "Real Estate Support", rate: flat(2_500) },
+      { label: "Real estate support — property search & purchase assistance", rate: flat(2_500) },
     ],
     hasAddressDeclaration: false,
     hasEscrowNote: true,
@@ -127,7 +128,7 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Biometrics", rate: perPerson(155, 155, 80) },
       { label: "ID card production", rate: perPerson(45, 45, 45) },
       { label: "Account opening fee", rate: flat(4_000) },
-      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION },
+      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION, approximate: true },
     ],
     gcsFee: [{ label: "GCS legal and advisory fee", rate: flat(10_000) }],
     hasAddressDeclaration: true,
@@ -167,6 +168,7 @@ function buildLineItems(
   const lineItems = rows.map((row) => ({
     label: row.label,
     amount: rowAmount(row.rate, spouseCount, children),
+    approximate: row.approximate,
   }));
   const subtotal = lineItems.reduce((sum, item) => sum + (item.amount ?? 0), 0);
   return { lineItems, subtotal };
@@ -183,7 +185,14 @@ export const latviaGoldenVisaCalculator: ProgramCalculator = {
       { kind: "count", count: children, singular: "Dependent Child", plural: "Dependent Children" },
     ]);
 
-    const rows = [...track.programmeCosts];
+    // Substitute the track's real investment-instrument name for the
+    // generic "Investment" row label (e.g. "Business Investment", "Real
+    // Estate Investment", "Bank Deposit") — previously defined per track
+    // but never actually read anywhere, so every track rendered the same
+    // bare "Investment" line regardless of which instrument it was.
+    const rows = track.programmeCosts.map((row) =>
+      row.label === "Investment" ? { ...row, label: track.investmentLabel } : row,
+    );
     if (track.hasAddressDeclaration && addressDeclaration) {
       rows.push({ label: "Address declaration (annual, optional)", rate: ADDRESS_DECLARATION });
     }
@@ -192,7 +201,12 @@ export const latviaGoldenVisaCalculator: ProgramCalculator = {
     const gcsFee = buildLineItems(track.gcsFee, spouseCount, children);
 
     const sections: QuoteSection[] = [
-      { ...latviaGoldenVisaConfig.sections[0], lineItems: programmeCosts.lineItems, subtotal: programmeCosts.subtotal },
+      {
+        ...latviaGoldenVisaConfig.sections[0],
+        lineItems: programmeCosts.lineItems,
+        subtotal: programmeCosts.subtotal,
+        subtotalApproximate: true, // Document preparation is always an approximate line in this section
+      },
       { ...latviaGoldenVisaConfig.sections[1], lineItems: gcsFee.lineItems, subtotal: gcsFee.subtotal },
     ];
 
@@ -210,6 +224,7 @@ export const latviaGoldenVisaCalculator: ProgramCalculator = {
       familyStructure,
       sections,
       grandTotal,
+      grandTotalApproximate: true, // Document preparation (approximate) always feeds into it
       footnotes,
     };
   },

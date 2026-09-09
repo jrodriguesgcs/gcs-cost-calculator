@@ -63,5 +63,6 @@ export const portugalGoldenVisaConfig: ProgramConfig = {
     "The GCS consultancy & legal fee for a child dependant is not priced in the current fee schedule — the line will show €0 until GCS confirms a rate.",
     "AIMA revises government fees annually, typically in March/April — figures above reflect the fee schedule supplied 21 Aug 2026.",
     "The total below reflects the Application Stage only; renewal fees (Year 2 and Year 4) are shown separately as they're due later and are government fees only, not GCS fees.",
+    "Fiscal representation is an ongoing annual service, not a one-time cost — the €350 line above covers Year 1 only; GCS will quote each subsequent year separately.",
   ],
 };

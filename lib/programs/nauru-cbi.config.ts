@@ -57,7 +57,7 @@ export const nauruCbiConfig: ProgramConfig = {
   ],
   sections: [
     { key: "beforeSubmission", title: "Before Submission", timing: "Before submission" },
-    { key: "approvalPayment", title: "Approval Payment", timing: "Within 30 days of approval in principle" },
+    { key: "approvalPayment", title: "After Approval", timing: "After approval — within 30 days of approval in principle" },
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
@@ -67,5 +67,7 @@ export const nauruCbiConfig: ProgramConfig = {
     "Payment schedule per Agent Manual §3.2.1: Payment 1 due before submission; Payment 2 due within 30 days of approval in principle.",
     "The GCS professional fee is separate from the government payment schedule above.",
     "Contribution amount reflects the current limited-time discount (valid 3 Feb – 31 Dec 2026); subject to change once the promotional period ends.",
+    "Translation, courier, and travel costs are not included above and are typically arranged and paid separately by the applicant.",
+    "The Grand Total covers all three sections shown (Before Submission, After Approval, and the GCS Professional Fee) — nothing is held back or excluded.",
   ],
 };

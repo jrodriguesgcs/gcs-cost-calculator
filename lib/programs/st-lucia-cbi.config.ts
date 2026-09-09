@@ -73,5 +73,6 @@ export const stLuciaCbiConfig: ProgramConfig = {
     "Excludes: the mandatory applicant interview and identity verification process (payable by the main applicant only), passport/oath/courier and translation costs, and Real Estate Project closing costs, taxes, and legal fees.",
     "Post-approval add-ons for an existing citizen (newborn $5,000, spouse $35,000, other dependant $25,000) are priced separately and not included in this estimate.",
     "The GCS professional fee is separate from the government/programme cost above.",
+    "Processing timelines are guidelines only, at the discretion of the Saint Lucia CIU (Citizenship by Investment Unit).",
   ],
 };

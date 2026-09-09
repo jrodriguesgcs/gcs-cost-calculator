@@ -20,10 +20,14 @@ const CONSULTANCY_FEE_ADULT_DEPENDENT = 750;
 const CONSULTANCY_FEE_CHILD_DEPENDENT = 0;
 const NIF_FISCAL_REP_YEAR_1 = 350;
 
-// AIMA per-person totals (application fee + the relevant permit fee),
-// pre-summed in the source (Fee Reference rows 21–23).
-const AIMA_PER_PERSON_APPLICATION = 632.1 + 6_314.2; // 6,946.30
-const AIMA_PER_PERSON_RENEWAL = 632.1 + 3_157.8; // 3,789.90 — same rate both renewal years; the source models no fee escalation between Year 2 and Year 4
+// AIMA per-person rates — each stage is genuinely two separate government
+// charges (Fee Reference rows 21–23), shown as two line items rather than
+// one pre-summed total.
+const AIMA_APPLICATION_FEE_PER_PERSON = 632.1;
+const AIMA_PERMIT_FEE_PER_PERSON = 6_314.2; // 632.10 + 6,314.20 = 6,946.30 total per person
+// 632.10 + 3,157.80 = 3,789.90 per person — same rate both renewal years;
+// the source models no fee escalation between Year 2 and Year 4.
+const AIMA_RENEWAL_PERMIT_FEE_PER_PERSON = 3_157.8;
 
 interface PortugalGoldenVisaVariables {
   investmentRoute: string;
@@ -60,7 +64,9 @@ export const portugalGoldenVisaCalculator: ProgramCalculator = {
     const consultancyFeeAdults = adultDependents * CONSULTANCY_FEE_ADULT_DEPENDENT;
     const consultancyFeeChildren = childDependents * CONSULTANCY_FEE_CHILD_DEPENDENT;
     const nifFiscalRep = NIF_FISCAL_REP_YEAR_1;
-    const aimaApplicationFees = totalPersons * AIMA_PER_PERSON_APPLICATION;
+    const aimaApplicationFee = totalPersons * AIMA_APPLICATION_FEE_PER_PERSON;
+    const aimaPermitFee = totalPersons * AIMA_PERMIT_FEE_PER_PERSON;
+    const aimaApplicationFees = aimaApplicationFee + aimaPermitFee;
 
     const applicationStageLineItems = [
       { label: `Qualifying investment — ${investmentRouteLabel(investmentRoute)}`, amount: qualifyingInvestment },
@@ -74,14 +80,21 @@ export const portugalGoldenVisaCalculator: ProgramCalculator = {
         amount: consultancyFeeChildren,
       },
       { label: "NIF issuance and fiscal representation (Year 1)", amount: nifFiscalRep },
-      { label: "Government application fees (AIMA)", amount: aimaApplicationFees },
+      { label: "AIMA government application fee", amount: aimaApplicationFee },
+      { label: "AIMA residence permit fee", amount: aimaPermitFee },
     ];
     const applicationStageSubtotal =
       qualifyingInvestment + consultancyFeeMain + consultancyFeeAdults + consultancyFeeChildren + nifFiscalRep + aimaApplicationFees;
 
-    const renewalFee = totalPersons * AIMA_PER_PERSON_RENEWAL;
-    const renewal1LineItems = [{ label: "AIMA government renewal fee", amount: renewalFee }];
-    const renewal2LineItems = [{ label: "AIMA government renewal fee", amount: renewalFee }];
+    const renewalApplicationFee = totalPersons * AIMA_APPLICATION_FEE_PER_PERSON;
+    const renewalPermitFee = totalPersons * AIMA_RENEWAL_PERMIT_FEE_PER_PERSON;
+    const renewalFee = renewalApplicationFee + renewalPermitFee;
+    const renewalLineItems = [
+      { label: "AIMA government application fee", amount: renewalApplicationFee },
+      { label: "AIMA residence permit renewal fee", amount: renewalPermitFee },
+    ];
+    const renewal1LineItems = renewalLineItems;
+    const renewal2LineItems = renewalLineItems;
 
     const sections: QuoteSection[] = [
       { ...portugalGoldenVisaConfig.sections[0], lineItems: applicationStageLineItems, subtotal: applicationStageSubtotal },

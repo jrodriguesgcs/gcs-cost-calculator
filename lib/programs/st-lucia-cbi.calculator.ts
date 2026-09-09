@@ -83,32 +83,58 @@ export const stLuciaCbiCalculator: ProgramCalculator = {
     const additionalDependantInvestment =
       investmentPath === "nef" ? nefChargeable18Plus * NEF_EXTRA_18_PLUS + nefChargeableUnder18 * NEF_EXTRA_UNDER_18 : 0;
 
-    // --- Administration fee (on grant of citizenship) ---
+    // --- Government administration fee (non-refundable, on grant of
+    // citizenship) — itemized into its real components where the path has
+    // sub-structure (RE, EP3); NAB/EP1 are already a single flat fee with
+    // nothing further to break out.
+    let adminFeeLineItems: { label: string; amount: number }[];
     let adminFee: number;
     if (investmentPath === "nab") {
       adminFee = NAB_ADMIN_FEE;
+      adminFeeLineItems = [{ label: "Government administration fee (non-refundable, National Action Bond)", amount: adminFee }];
     } else if (investmentPath === "ep1") {
       adminFee = EP1_ADMIN_FEE;
+      adminFeeLineItems = [{ label: "Government administration fee (non-refundable, Enterprise Project Option 1)", amount: adminFee }];
     } else if (investmentPath === "re") {
       const reBase = spouseCount === 1 ? RE_ADMIN_BASE_WITH_SPOUSE : RE_ADMIN_BASE_SOLO;
-      adminFee = reBase + under18Bucket * RE_ADMIN_PER_UNDER_18 + dep18Plus * RE_ADMIN_PER_18_PLUS;
+      const reUnder18 = under18Bucket * RE_ADMIN_PER_UNDER_18;
+      const re18Plus = dep18Plus * RE_ADMIN_PER_18_PLUS;
+      adminFee = reBase + reUnder18 + re18Plus;
+      adminFeeLineItems = [
+        { label: `Government administration fee — base (${spouseCount === 1 ? "with spouse" : "solo applicant"})`, amount: reBase },
+        { label: "Government administration fee — dependants under 18", amount: reUnder18 },
+        { label: "Government administration fee — dependants 18+", amount: re18Plus },
+      ];
     } else if (investmentPath === "ep3") {
       const tierIndex = Math.min(totalQualifyingDependants, 3);
-      adminFee = EP3_ADMIN_TIERS[tierIndex] + ep3DependantsBeyond3 * EP3_ADMIN_PER_EXTRA_BEYOND_3;
+      const tierBase = EP3_ADMIN_TIERS[tierIndex];
+      const beyond3 = ep3DependantsBeyond3 * EP3_ADMIN_PER_EXTRA_BEYOND_3;
+      adminFee = tierBase + beyond3;
+      adminFeeLineItems = [
+        { label: `Government administration fee — base (${totalQualifyingDependants} qualifying dependant${totalQualifyingDependants === 1 ? "" : "s"})`, amount: tierBase },
+        { label: "Government administration fee — dependants beyond 3", amount: beyond3 },
+      ];
     } else {
       adminFee = 0; // NEF: no administration fee under this path
+      adminFeeLineItems = [];
     }
 
-    // --- Application processing & due diligence fees ---
-    const applicationFee = APPLICATION_FEE_MAIN + totalQualifyingDependants * APPLICATION_FEE_PER_DEPENDANT;
-    const dueDiligenceFee = DD_FEE_MAIN + subjectToDueDiligence * DD_FEE_PER_DEPENDANT_16_PLUS;
+    // --- Application processing & due diligence fees, itemized main vs. dependants ---
+    const applicationFeeMain = APPLICATION_FEE_MAIN;
+    const applicationFeeDependants = totalQualifyingDependants * APPLICATION_FEE_PER_DEPENDANT;
+    const applicationFee = applicationFeeMain + applicationFeeDependants;
+    const dueDiligenceFeeMain = DD_FEE_MAIN;
+    const dueDiligenceFeeDependants = subjectToDueDiligence * DD_FEE_PER_DEPENDANT_16_PLUS;
+    const dueDiligenceFee = dueDiligenceFeeMain + dueDiligenceFeeDependants;
 
     const programmeCostsLineItems = [
       { label: "Qualifying investment (base)", amount: investmentBase },
       { label: "Additional dependant investment (NEF only)", amount: additionalDependantInvestment },
-      { label: "Administration fee (on grant of citizenship)", amount: adminFee },
-      { label: "Application processing fees", amount: applicationFee },
-      { label: "Due diligence fees", amount: dueDiligenceFee },
+      ...adminFeeLineItems,
+      { label: "Application processing fee — main applicant", amount: applicationFeeMain },
+      { label: "Application processing fee — dependants", amount: applicationFeeDependants },
+      { label: "Due diligence fee — main applicant", amount: dueDiligenceFeeMain },
+      { label: "Due diligence fee — dependants aged 16+", amount: dueDiligenceFeeDependants },
     ];
     const programmeCostsSubtotal = investmentBase + additionalDependantInvestment + adminFee + applicationFee + dueDiligenceFee;
 
