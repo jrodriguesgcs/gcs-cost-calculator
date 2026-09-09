@@ -63,6 +63,5 @@ export const maltaMprpConfig: ProgramConfig = {
     "Asset requirement: min. €500,000 in assets (of which €150,000 financial) OR min. €650,000 in assets (of which €75,000 financial).",
     "Temporary residence cards in Section 2 are optional; permit renewal every 5 years costs €500 (govt fee).",
     "The 12-month timeline is a guideline only, at the discretion of the relevant authorities.",
-    "The Grand Total covers Sections 1–3 (professional fee, government administrative fee, real estate, government contribution, and donation) — it includes the real estate purchase price (or first year's rent), but excludes Section 4's Annual Obligations, which recur every year from grant through year 5.",
   ],
 };

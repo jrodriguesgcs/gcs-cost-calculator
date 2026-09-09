@@ -9,12 +9,9 @@ import { ProgramCalculator, ProgramVariableValues, Quote, QuoteSection } from ".
 // stage); Section 4's rental line covers each SUBSEQUENT year (years 2–5),
 // not year 1 again.
 //
-// Grand total = Section 1 + Section 2 + Section 3. This numerically
-// includes the real estate cost, because Section 3's own subtotal includes
-// it (per the spec's "Decisions Made": real estate is not excluded from
-// totals) — the spec's grand-total heading says "(excl. real estate)" but
-// that's describing intent loosely; the actual summed formula is Section 3
-// as defined, real estate and all.
+// Grand total = every section shown (1–4), no exceptions — per the tool-
+// wide rule that the Grand Total must always equal the sum of what's on
+// the page, not a subset requiring a footnote to explain the gap.
 
 const REAL_ESTATE_PURCHASE_MIN = 375_000;
 const REAL_ESTATE_RENTAL_YEARLY_MIN = 14_000;
@@ -116,7 +113,7 @@ export const maltaMprpCalculator: ProgramCalculator = {
       },
     ];
 
-    const grandTotal = signingSubtotal + applicationSubtotal + approvalSubtotal;
+    const grandTotal = signingSubtotal + applicationSubtotal + approvalSubtotal + annualSubtotal;
 
     return {
       programName: maltaMprpConfig.name,
@@ -126,6 +123,9 @@ export const maltaMprpCalculator: ProgramCalculator = {
       familyStructure,
       sections,
       grandTotal,
+      // Section 4's rental-only line is approximate; once rental is
+      // selected, that approximate figure is now part of the total above.
+      grandTotalApproximate: isRental,
       footnotes: maltaMprpConfig.footnotes,
     };
   },

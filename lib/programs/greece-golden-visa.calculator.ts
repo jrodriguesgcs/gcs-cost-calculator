@@ -82,7 +82,6 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
     let investmentSectionTitle: string;
     let investmentLineItems: { label: string; amount: number }[];
     let investmentSubtotal: number;
-    let investmentPrincipalExcluded: number; // excluded from the grand total
 
     if (track === "tangible") {
       const propConsult = propertyTier * PROPERTY_CONSULTANCY_RATE;
@@ -113,7 +112,6 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
         { label: "Property registration (0.77%)", amount: registrationFee },
       ];
       investmentSubtotal = propertyTier + propertyTaxes;
-      investmentPrincipalExcluded = propertyTier;
     } else {
       const gcsFeeMain = GCS_FEE_INTANGIBLE_MAIN;
       const gcsFeeDependants = totalDependants * GCS_FEE_INTANGIBLE_PER_DEPENDANT;
@@ -128,7 +126,6 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
       investmentSectionTitle = "Capital Investment";
       investmentLineItems = [{ label: "Investment amount", amount: investmentTier }];
       investmentSubtotal = investmentTier;
-      investmentPrincipalExcluded = investmentTier;
     }
 
     // --- Section 1: GCS Professional Fee (deposit only — the balance is
@@ -147,9 +144,7 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
     ];
     const applicationBalanceSubtotal = gcsBalance + appFees;
 
-    // --- Section 4: Permit Renewal (every 5 years — excluded from the
-    // grand total below, same convention as Italy Golden Visa's own
-    // renewal section) ---
+    // --- Section 4: Permit Renewal (every 5 years) ---
     const renewalLineItems = [
       { label: "Government fee — main applicant", amount: GOVT_FEE_MAIN },
       { label: "Government fee — adult dependants", amount: depAdults * GOVT_FEE_ADULT_DEPENDANT },
@@ -174,13 +169,10 @@ export const greeceGoldenVisaCalculator: ProgramCalculator = {
       { ...greeceGoldenVisaConfig.sections[3], lineItems: renewalLineItems, subtotal: renewalSubtotal },
     ];
 
-    // One-time grand total: GCS deposit + application/GCS-balance section,
-    // plus whatever of the investment section isn't the property price /
-    // investment principal itself (i.e. property taxes stay in for the
-    // tangible track; the intangible track has nothing left once the
-    // investment amount is excluded). Renewal is recurring and shown
-    // separately, matching Italy Golden Visa's own renewal treatment.
-    const grandTotal = gcsFeeSubtotal + (investmentSubtotal - investmentPrincipalExcluded) + applicationBalanceSubtotal;
+    // Grand total = every section shown, no exceptions — per the tool-wide
+    // rule that the Grand Total must always equal the sum of what's on the
+    // page, not a subset requiring a footnote to explain the gap.
+    const grandTotal = gcsFeeSubtotal + investmentSubtotal + applicationBalanceSubtotal + renewalSubtotal;
 
     return {
       programName: greeceGoldenVisaConfig.name,

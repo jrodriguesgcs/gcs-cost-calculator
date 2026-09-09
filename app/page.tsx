@@ -107,7 +107,7 @@ export default function Home() {
       </a>
       <main id="main-content" className="min-h-screen bg-background px-6 py-10">
         <div className="mx-auto max-w-5xl">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-start gap-2">
             {/* GCS Symbol lockup (gcs-design-system §3.10: icon-only mark, no wordmark —
                 the right lockup for a compact app-header icon; real 70x71 aspect ratio,
                 not guessed). Blue variant per the design system's light-background rule. */}

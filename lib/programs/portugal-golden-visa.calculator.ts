@@ -102,13 +102,12 @@ export const portugalGoldenVisaCalculator: ProgramCalculator = {
       { ...portugalGoldenVisaConfig.sections[2], lineItems: renewal2LineItems, subtotal: renewalFee },
     ];
 
-    // Deliberate divergence from the source sheet's own bottom line (which
-    // sums Application Stage + both renewals): matches this tool's
-    // established convention of excluding recurring/later-due obligations
-    // from the headline grand total (see Malta MPRP's "Annual Obligations"
-    // section) — renewals are still shown in full above, just not folded
-    // into the one-time total.
-    const grandTotal = applicationStageSubtotal;
+    // Grand total = every section shown, no exceptions — per the tool-wide
+    // rule that the Grand Total must always equal the sum of what's on the
+    // page, not a subset requiring a footnote to explain the gap. This
+    // matches the source sheet's own bottom line (Application Stage + both
+    // renewals).
+    const grandTotal = applicationStageSubtotal + renewalFee + renewalFee;
 
     return {
       programName: portugalGoldenVisaConfig.name,
