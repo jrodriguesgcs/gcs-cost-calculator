@@ -24,7 +24,17 @@ const DOC_BORDER_LIGHT = "#ECEDF5"; // lightest divider (most common) — line-i
 // Page-margin bands reserved for the repeating header/footer (see
 // render-pdf.ts's `page.pdf({ margin })`) — exported so both sides of the
 // header/footer-vs-content-height math stay in sync.
-export const HEADER_MARGIN_MM = 35;
+//
+// HEADER_MARGIN_MM was sized (35mm) for the original 11mm-tall logo +
+// three-line office-address block in the header (see git history on
+// renderHeaderTemplate). Both were later removed/shrunk down to a single
+// 6mm logo, but this constant was never revisited — leaving ~29mm of dead
+// white space between the logo and the title on every generated PDF, and
+// needlessly shrinking the auto-shrink content budget in render-pdf.ts.
+// 18mm gives the 6mm logo a comfortable ~12mm gap before content starts
+// (roughly the same visual breathing room the old 35mm gave the taller
+// 11mm header) without the leftover slack.
+export const HEADER_MARGIN_MM = 18;
 export const FOOTER_MARGIN_MM = 16;
 export const PAGE_SIDE_MARGIN_MM = 20;
 
