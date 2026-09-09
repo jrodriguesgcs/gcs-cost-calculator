@@ -196,6 +196,8 @@ Used across brochures/letterheads/factsheets — **finer-grained grays than the 
 
 **⚠️ Conflict flag:** `--doc-body: #4B4E65` is the design system's *current* documented "body copy on white" for print templates — it is a slightly lighter/cooler gray than the old letterhead's `#414856`. They are close enough to be visually indistinguishable at body-text size, but they are not byte-identical. Recommendation: keep `#414856` (`--foreground-secondary`) since it's explicitly called out in this repo as *"the value used consistently for body copy across social + print templates"* and is the more authoritative/older established value; treat `#4B4E65` as a document-template-only variant, not a supersede.
 
+**⚠️ A third, later-adopted value exists too:** `gcs-cost-calculator`'s own PDF (`lib/pdf/print-template.ts`'s `BODY` constant) deliberately uses `#343750`, not `#414856` or `#4B4E65`. That's a documented, intentional cross-skill choice from a prior session: the `gcs-docx` skill's brand-color table specifies `#343750` for its "General" correspondence variant's paragraph body text, and was judged the more recently-updated source for document body copy specifically (as opposed to `--foreground-secondary`, which is scoped to "body copy across social + print templates" generally). Recorded here so this doc and that PDF template stay in agreement rather than silently diverging — `#343750` is the value to use for a fee-estimate/investment-document body-copy context going forward, alongside (not replacing) `#414856` for everything else this doc's own recommendation above covers.
+
 ---
 
 ## 2. Typography
@@ -587,3 +589,5 @@ The task states your Next.js form UI and Puppeteer PDF currently use the older, 
 | Neutrals/grays, semantic status colors, spacing scale, shadows, motion tokens | **not defined at all** in the old letterhead system | Fully specified here (§1.7–1.8, §3, §4.2–4.3) | **New information — adopt wholesale.** This is the main value-add of migrating: a complete gray/neutral scale, success/warning/error/info colors, a 4px spacing grid, and shadow/motion tokens where previously only 3 colors + 2 fonts existed. |
 
 **Bottom line:** nothing in this design system contradicts the three colors and two fonts your PDF already uses — it's a strict superset. The one place to be precise is **which gray you use for body text**: use `#414856` (`--foreground-secondary`), not `#101828` (`--foreground`, reserved for headings) and not `#4B4E65` (`--doc-body`, a separate print-template variant).
+
+**Update, later session:** the PDF's body text has since moved again, to `#343750` (the `gcs-docx` skill's "General" correspondence body-copy value — see the §1.10 conflict flag above for the full reasoning). Treat that as the current authoritative value for this PDF specifically; the guidance above still holds for anything that should instead use `#414856`/`--foreground-secondary`.
