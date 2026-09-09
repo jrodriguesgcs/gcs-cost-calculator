@@ -12,13 +12,21 @@ import { formatAmount, formatCurrency } from "../currency";
 // (this is a fee estimate, not a letter) and isn't used.
 const NAVY = "#000957";
 const BODY = "#343750";
-const ACCENT = "#3F8CFF";
+// The section "timing" label (e.g. "Months 1–3") is the one place small
+// (9.5pt, non-bold) text was set in the raw brand accent #3F8CFF — that
+// only reaches ~3.27:1 against white, well under WCAG AA's 4.5:1 for
+// normal-size text (confirmed by computing relative luminance by hand; the
+// impeccable skill's audit is web-only and doesn't check PDFs). --doc-badge
+// from the design system's own §1.10 document palette is the closest
+// same-family blue that actually clears AA (~5.93:1) — used here instead
+// of the raw accent for any small blue text; a bigger/bolder accent use
+// could still use the brand accent directly under the 3:1 large-text rule.
+const ACCENT_TEXT = "#3D51E8";
 const FOOTER_URL_COLOR = "#0F1A2D";
-const PAGE_NUM_COLOR = "#999999";
 
 // Document-palette tokens (reference doc §1.10) — the finer-grained
 // neutral/border scale meant for print/PDF contexts specifically.
-const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line, and (for real contrast) the footnotes
+const DOC_MUTED_ALT = "#6F7185"; // letterhead date/sender-style labels — used for the family-structure line, the footnotes, and (for real contrast; replaces the old #999999 that only hit ~2.85:1) the footer page count
 const DOC_BORDER_LIGHT = "#ECEDF5"; // lightest divider (most common) — line-item and footer rules
 
 // Page-margin bands reserved for the repeating header/footer (see
@@ -137,7 +145,7 @@ export function renderFooterTemplate(): string {
   return `<style>${fontFaceCss}</style>
 <div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; display:flex; justify-content:space-between; font-family:'Heebo',sans-serif; font-size:10pt;">
   <span style="color:${FOOTER_URL_COLOR};">GLOBALCITIZENSOLUTIONS.COM</span>
-  <span style="color:${PAGE_NUM_COLOR};"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
+  <span style="color:${DOC_MUTED_ALT};"><span class="pageNumber"></span> / <span class="totalPages"></span></span>
 </div>`;
 }
 
@@ -257,7 +265,7 @@ export function renderEstimateHtml(quote: Quote, scale: number = 1): string {
   }
   .section-header .timing {
     font-size: calc(9.5pt * var(--scale));
-    color: ${ACCENT};
+    color: ${ACCENT_TEXT};
   }
   table.line-items { width: 100%; border-collapse: collapse; }
   table.line-items td {
