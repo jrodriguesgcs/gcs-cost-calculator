@@ -60,6 +60,33 @@ async function launchBrowser(): Promise<Browser> {
   });
 }
 
+// Module-level cache: survives across warm invocations of the same
+// serverless function instance (or across requests within one `next dev`
+// process). Launching Chromium is the expensive part of a render — a cold
+// instance still pays that cost once, but every subsequent request against
+// a warm instance reuses this browser instead of relaunching it, which is
+// what the spec (§2) asked for ("a persistent/warm headless-browser
+// instance... rather than spinning one up per request").
+let cachedBrowserPromise: Promise<Browser> | null = null;
+
+// Returns a warm, connected Browser — reusing the cached instance if one
+// exists and is still alive, relaunching (and replacing the cache) if it
+// doesn't exist yet or has crashed/disconnected since the last call. Note
+// this instance must never be closed by a request — only the per-request
+// Page (see renderQuoteToPdf) — closing it here would silently undo the
+// whole point of the cache.
+async function getBrowser(): Promise<Browser> {
+  if (cachedBrowserPromise) {
+    const browser = await cachedBrowserPromise;
+    if (browser.connected) return browser;
+    // Cached instance died between invocations (crashed, OOM-killed, etc.)
+    // — drop it and fall through to relaunch.
+    cachedBrowserPromise = null;
+  }
+  cachedBrowserPromise = launchBrowser();
+  return cachedBrowserPromise;
+}
+
 async function measureContentHeightPx(page: Page): Promise<number> {
   return page.evaluate(() => {
     const el = document.getElementById("estimate-page");
@@ -76,10 +103,11 @@ async function measureContentHeightPx(page: Page): Promise<number> {
  * header/footer templates.
  */
 export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
-  const browser = await launchBrowser();
+  const browser = await getBrowser();
+  let page: Page | undefined;
 
   try {
-    const page = await browser.newPage();
+    page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123 }); // A4 @ 96dpi
 
     let scale = 1;
@@ -116,6 +144,8 @@ export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
 
     return Buffer.from(pdfBuffer);
   } finally {
-    await browser.close();
+    // Only the per-request Page is closed — the Browser is cached and
+    // reused across requests (see getBrowser above).
+    await page?.close();
   }
 }
