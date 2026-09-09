@@ -98,87 +98,105 @@ export default function Home() {
   const canGenerate = clientName.trim().length > 0 && !isGenerating;
 
   return (
-    <div className="min-h-screen bg-background px-6 py-10">
-      <div className="mx-auto max-w-5xl">
-        <h1 className="font-serif text-3xl font-normal text-foreground">Cost Calculator</h1>
-        <p className="mt-1 text-sm text-foreground-secondary">
-          Internal Global Citizen Solutions tool
-        </p>
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-none focus:border focus:border-border focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:outline-none focus:ring-[3px] focus:ring-accent/35"
+      >
+        Skip to main content
+      </a>
+      <main id="main-content" className="min-h-screen bg-background px-6 py-10">
+        <div className="mx-auto max-w-5xl">
+          <h1 className="font-serif text-3xl font-normal text-foreground">Cost Calculator</h1>
+          <p className="mt-1 text-sm text-foreground-secondary">
+            Internal Global Citizen Solutions tool
+          </p>
 
-        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <div className="space-y-6">
-            <div className="rounded-none border border-border bg-white p-6">
-              <label className="block text-sm font-medium text-foreground-secondary">
-                Program of Interest
-              </label>
-              <select
-                value={programSlug}
-                onChange={(event) => handleProgramChange(event.target.value)}
-                className="mt-1 w-full rounded-none border border-border px-4 py-3 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35"
-              >
-                {programs.map((p) => (
-                  <option key={p.config.slug} value={p.config.slug}>
-                    {p.config.name}
-                  </option>
-                ))}
-              </select>
+          <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="space-y-6">
+              <div className="rounded-none border border-border bg-white p-6">
+                <label htmlFor="program-select" className="block text-sm font-medium text-foreground-secondary">
+                  Program of Interest
+                </label>
+                <select
+                  id="program-select"
+                  value={programSlug}
+                  onChange={(event) => handleProgramChange(event.target.value)}
+                  className="mt-1 w-full rounded-none border border-border px-4 py-3 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35"
+                >
+                  {programs.map((p) => (
+                    <option key={p.config.slug} value={p.config.slug}>
+                      {p.config.name}
+                    </option>
+                  ))}
+                </select>
 
-              <label className="mt-4 block text-sm font-medium text-foreground-secondary">
-                Client Name
-              </label>
-              <input
-                type="text"
-                value={clientName}
-                onChange={(event) => setClientName(event.target.value)}
-                placeholder="e.g. John Smith"
-                className="mt-1 w-full rounded-none border border-border px-4 py-3 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35"
-              />
-            </div>
-
-            <div className="rounded-none border border-border bg-white p-6">
-              <h2 className="text-sm font-medium text-foreground-secondary">Variables</h2>
-              <div className="mt-2 divide-y divide-border">
-                {program.config.variables.map((variable) => (
-                  <VariableField
-                    key={variable.key}
-                    variable={variable}
-                    value={variables[variable.key]}
-                    onChange={(value) => updateVariable(variable.key, value)}
-                    disabled={variable.disabledWhen?.(variables) ?? false}
-                  />
-                ))}
+                <label htmlFor="client-name" className="mt-4 block text-sm font-medium text-foreground-secondary">
+                  Client Name
+                </label>
+                <input
+                  id="client-name"
+                  type="text"
+                  value={clientName}
+                  onChange={(event) => setClientName(event.target.value)}
+                  placeholder="e.g. John Smith"
+                  className="mt-1 w-full rounded-none border border-border px-4 py-3 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35"
+                />
               </div>
+
+              <div className="rounded-none border border-border bg-white p-6">
+                <h2 className="text-sm font-medium text-foreground-secondary">Variables</h2>
+                <div className="mt-2 divide-y divide-border">
+                  {program.config.variables.map((variable) => (
+                    <VariableField
+                      key={variable.key}
+                      variable={variable}
+                      value={variables[variable.key]}
+                      onChange={(value) => updateVariable(variable.key, value)}
+                      disabled={variable.disabledWhen?.(variables) ?? false}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleGeneratePdf}
+                disabled={!canGenerate}
+                aria-busy={isGenerating}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-none bg-primary px-4 text-sm font-medium uppercase tracking-[0.02em] text-white hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isGenerating ? (
+                  <>
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                    />
+                    Generating…
+                  </>
+                ) : (
+                  "Generate PDF"
+                )}
+              </button>
+              {!clientName.trim() && (
+                <p className="text-xs text-muted-foreground">
+                  Enter a client name to enable PDF generation.
+                </p>
+              )}
+              {error && (
+                <p className="text-sm text-destructive" aria-live="polite">
+                  {error}
+                </p>
+              )}
             </div>
 
-            <button
-              type="button"
-              onClick={handleGeneratePdf}
-              disabled={!canGenerate}
-              className="flex h-11 w-full items-center justify-center gap-2 rounded-none bg-primary px-4 text-sm font-medium uppercase tracking-[0.02em] text-white hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isGenerating ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Generating…
-                </>
-              ) : (
-                "Generate PDF"
-              )}
-            </button>
-            {!clientName.trim() && (
-              <p className="text-xs text-muted-foreground">
-                Enter a client name to enable PDF generation.
-              </p>
-            )}
-            {error && <p className="text-sm text-destructive">{error}</p>}
-          </div>
-
-          <div>
-            <h2 className="mb-2 text-sm font-medium text-foreground-secondary">Live Preview</h2>
-            <EstimatePreview quote={quote} />
+            <div>
+              <h2 className="mb-2 text-sm font-medium text-foreground-secondary">Live Preview</h2>
+              <EstimatePreview quote={quote} />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 }

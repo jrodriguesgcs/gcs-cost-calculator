@@ -16,13 +16,21 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
 
   if (variable.type === "boolean") {
     const included = Boolean(value);
+    const labelId = `${variable.key}-label`;
     return (
       <div className="flex items-center justify-between py-2">
-        <label className="text-sm text-foreground-secondary">{variable.label}</label>
-        <div className="inline-flex rounded-none border border-border text-sm">
+        <span id={labelId} className="text-sm text-foreground-secondary">
+          {variable.label}
+        </span>
+        <div
+          role="group"
+          aria-labelledby={labelId}
+          className="inline-flex rounded-none border border-border text-sm"
+        >
           <button
             type="button"
             onClick={() => onChange(true)}
+            aria-pressed={included}
             className={`px-3 py-1 ${
               included ? "bg-primary text-white" : "bg-white text-foreground-secondary"
             }`}
@@ -32,6 +40,7 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
           <button
             type="button"
             onClick={() => onChange(false)}
+            aria-pressed={!included}
             className={`px-3 py-1 ${
               !included ? "bg-primary text-white" : "bg-white text-foreground-secondary"
             }`}
@@ -45,11 +54,15 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
 
   if (variable.type === "number") {
     const numericValue = Number(value ?? 0);
+    const inputId = `${variable.key}-input`;
     return (
       <div className="py-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm text-foreground-secondary">{variable.label}</label>
+          <label htmlFor={inputId} className="text-sm text-foreground-secondary">
+            {variable.label}
+          </label>
           <input
+            id={inputId}
             type="number"
             min={variable.min}
             max={variable.max}
@@ -72,10 +85,14 @@ export function VariableField({ variable, value, onChange, disabled = false }: P
   }
 
   // select
+  const selectId = `${variable.key}-select`;
   return (
     <div className="flex items-center justify-between py-2">
-      <label className="text-sm text-foreground-secondary">{variable.label}</label>
+      <label htmlFor={selectId} className="text-sm text-foreground-secondary">
+        {variable.label}
+      </label>
       <select
+        id={selectId}
         value={String(value)}
         onChange={(event) => onChange(event.target.value)}
         className={`rounded-none border border-border px-2 py-1 text-sm ${FOCUS_RING}`}

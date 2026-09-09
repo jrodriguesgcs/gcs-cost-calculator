@@ -113,7 +113,7 @@ export function renderHeaderTemplate(): string {
 
   return `<style>${fontFaceCss}</style>
 <div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; font-family:'Heebo',sans-serif;">
-  <img src="${logo.dataUri}" style="height:${heightMm}mm; width:${widthMm}mm;" />
+  <img src="${logo.dataUri}" alt="Global Citizen Solutions" style="height:${heightMm}mm; width:${widthMm}mm;" />
 </div>`;
 }
 
