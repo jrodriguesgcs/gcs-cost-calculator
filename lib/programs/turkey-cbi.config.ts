@@ -15,7 +15,7 @@ import { ProgramConfig } from "./types";
 
 export const turkeyCbiConfig: ProgramConfig = {
   slug: "turkey-cbi",
-  name: "Turkey CBI",
+  name: "Turkey Citizenship by Investment",
   currency: "USD",
   variables: [
     {

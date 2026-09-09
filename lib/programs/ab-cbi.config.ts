@@ -21,7 +21,7 @@ import { ProgramConfig } from "./types";
 
 export const abCbiConfig: ProgramConfig = {
   slug: "ab-cbi",
-  name: "Antigua & Barbuda CBI",
+  name: "Antigua & Barbuda Citizenship by Investment",
   currency: "USD",
   variables: [
     {

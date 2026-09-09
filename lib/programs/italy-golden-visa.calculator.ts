@@ -12,11 +12,11 @@ import { ProgramCalculator, ProgramVariableValues, Quote, QuoteSection } from ".
 // calculator also defensively clamps effective minors to 0 if spouse is
 // false, so the math is correct even if called with a stale value.
 
-const INVESTMENT_TRACKS: Record<string, { label: string; amount: number }> = {
-  startup: { label: "Track A: Innovative Startup", amount: 250_000 },
-  equity: { label: "Track B: Company Equity", amount: 500_000 },
-  bonds: { label: "Track C: Government Bonds", amount: 2_000_000 },
-  donation: { label: "Track D: Philanthropic Donation", amount: 1_000_000 },
+const INVESTMENT_TRACKS: Record<string, { label: string; lineLabel: string; amount: number }> = {
+  startup: { label: "Innovative Startup", lineLabel: "Investment in an Innovative Startup", amount: 250_000 },
+  equity: { label: "Company Equity", lineLabel: "Investment in Company Equity", amount: 500_000 },
+  bonds: { label: "Government Bonds", lineLabel: "Investment in Government Bonds", amount: 2_000_000 },
+  donation: { label: "Philanthropic Donation", lineLabel: "Investment in a Philanthropic Donation", amount: 1_000_000 },
 };
 
 const RESIDENCE_PERMIT_PRINTING = 30.46;
@@ -95,7 +95,7 @@ export const italyGoldenVisaCalculator: ProgramCalculator = {
     const permit = residencePermitLineItems();
 
     // --- Section 4: Execute Investment (within 90 days of entry) ---
-    const investmentLineItems = [{ label: `Investment — ${track.label}`, amount: track.amount }];
+    const investmentLineItems = [{ label: track.lineLabel, amount: track.amount }];
     const investmentSubtotal = track.amount;
 
     // --- Section 5: Permit Renewal (after 2 years, renewable for 3) ---
@@ -122,6 +122,7 @@ export const italyGoldenVisaCalculator: ProgramCalculator = {
       currency: italyGoldenVisaConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: track.label,
       sections,
       grandTotal,
       // Section 1's legalisation/translation/courier line is approximate,

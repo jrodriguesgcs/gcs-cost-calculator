@@ -17,7 +17,7 @@ import { ProgramConfig } from "./types";
 
 export const grenadaCbiConfig: ProgramConfig = {
   slug: "grenada-cbi",
-  name: "Grenada CBI",
+  name: "Grenada Citizenship by Investment",
   currency: "USD",
   variables: [
     {

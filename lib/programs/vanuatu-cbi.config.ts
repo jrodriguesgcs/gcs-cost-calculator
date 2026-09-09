@@ -11,7 +11,7 @@ import { ProgramConfig } from "./types";
 
 export const vanuatuCbiConfig: ProgramConfig = {
   slug: "vanuatu-cbi",
-  name: "Vanuatu CBI",
+  name: "Vanuatu Citizenship by Investment",
   currency: "USD",
   variables: [
     {

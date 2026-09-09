@@ -191,6 +191,7 @@ export const grenadaCbiCalculator: ProgramCalculator = {
       currency: grenadaCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: isRealEstate ? "Real Estate Investment" : "National Transformation Fund Contribution",
       sections,
       grandTotal,
       footnotes: grenadaCbiConfig.footnotes,

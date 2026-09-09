@@ -12,7 +12,7 @@ import { ProgramConfig } from "./types";
 
 export const nauruCbiConfig: ProgramConfig = {
   slug: "nauru-cbi",
-  name: "Nauru CBI",
+  name: "Nauru Citizenship by Investment",
   currency: "USD",
   variables: [
     {

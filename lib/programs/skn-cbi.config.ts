@@ -6,7 +6,7 @@ import { ProgramConfig } from "./types";
 
 export const sknCbiConfig: ProgramConfig = {
   slug: "skn-cbi",
-  name: "St Kitts & Nevis CBI",
+  name: "St Kitts & Nevis Citizenship by Investment",
   currency: "USD",
   variables: [
     {

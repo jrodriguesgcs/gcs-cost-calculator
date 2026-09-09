@@ -152,6 +152,7 @@ export const dominicaCbiCalculator: ProgramCalculator = {
       currency: dominicaCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: isRealEstate ? "Real Estate" : "EDF Donation",
       sections,
       grandTotal,
       footnotes: dominicaCbiConfig.footnotes,

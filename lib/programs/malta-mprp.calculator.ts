@@ -121,6 +121,7 @@ export const maltaMprpCalculator: ProgramCalculator = {
       currency: maltaMprpConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: isRental ? "Real Estate — Rental" : "Real Estate — Purchase",
       sections,
       grandTotal,
       // Section 4's rental-only line is approximate; once rental is

@@ -115,6 +115,7 @@ export const portugalGoldenVisaCalculator: ProgramCalculator = {
       currency: portugalGoldenVisaConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: investmentRouteLabel(investmentRoute),
       sections,
       grandTotal,
       footnotes: portugalGoldenVisaConfig.footnotes,

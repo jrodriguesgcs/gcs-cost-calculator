@@ -163,20 +163,24 @@ export const sknCbiCalculator: ProgramCalculator = {
 
     let contributionAmount: number;
     let contributionLabel: string;
+    let investmentRoute: string;
     if (pathCode === "sisc") {
       const excessPersons = Math.max(0, totalPersons - SISC_FREE_THRESHOLD_PERSONS);
       const excessAdults = Math.min(adults, excessPersons);
       const excessMinors = Math.max(0, excessPersons - excessAdults);
       contributionAmount = SISC_BASE_CONTRIBUTION + excessAdults * SISC_EXCESS_ADULT + excessMinors * SISC_EXCESS_MINOR;
       contributionLabel = "Sustainable Island State Contribution";
+      investmentRoute = "Sustainable Island State Contribution";
     } else if (pathCode === "pbo") {
       contributionAmount = PBO_CONTRIBUTION_FLAT;
       contributionLabel = "Public Benefit Contribution";
+      investmentRoute = "Public Benefit Option";
     } else {
       contributionAmount = realEstateContribution;
       contributionLabel = isRealEstateHome
         ? "Real estate contribution — private home (sole ownership)"
         : "Real estate contribution — share or condominium";
+      investmentRoute = isRealEstateHome ? "Real Estate — Private Home" : "Real Estate — Share or Condominium";
     }
 
     const afterApprovalLineItems = [
@@ -212,6 +216,7 @@ export const sknCbiCalculator: ProgramCalculator = {
       currency: sknCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute,
       sections,
       grandTotal,
       footnotes: sknCbiConfig.footnotes,

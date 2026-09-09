@@ -155,9 +155,31 @@ export const stLuciaCbiCalculator: ProgramCalculator = {
       currency: stLuciaCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: investmentPathLabel(investmentPath),
       sections,
       grandTotal,
       footnotes: stLuciaCbiConfig.footnotes,
     };
   },
 };
+
+// Note: "Option 1"/"Option 3" reproduce the St Lucia CIU's own official
+// names for these two Enterprise Project investment tiers (per the source
+// dropdown labels) rather than an arbitrary internal track letter — kept
+// verbatim pending confirmation from GCS on whether client-facing copy
+// should rename them.
+function investmentPathLabel(path: string): string {
+  switch (path) {
+    case "nab":
+      return "National Action Bond";
+    case "re":
+      return "Real Estate Project";
+    case "ep3":
+      return "Enterprise Project (Option 3)";
+    case "ep1":
+      return "Enterprise Project (Option 1)";
+    case "nef":
+    default:
+      return "National Economic Fund";
+  }
+}

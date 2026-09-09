@@ -222,6 +222,7 @@ export const latviaGoldenVisaCalculator: ProgramCalculator = {
       currency: latviaGoldenVisaConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute: track.investmentLabel,
       sections,
       grandTotal,
       grandTotalApproximate: true, // Document preparation (approximate) always feeds into it

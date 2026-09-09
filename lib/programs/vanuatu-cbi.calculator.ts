@@ -144,6 +144,8 @@ export const vanuatuCbiCalculator: ProgramCalculator = {
       currency: vanuatuCbiConfig.currency,
       clientName,
       familyStructure,
+      investmentRoute:
+        programme === "ciip" ? "CIIP (Capital Investment Immigration Plan)" : "DSP (Development Support Program)",
       sections,
       grandTotal,
       footnotes,
