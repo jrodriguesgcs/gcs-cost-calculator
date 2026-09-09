@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude code: machine-specific plugin/skill artifacts (per-user hook
+# wiring, platform-specific compiled binaries) — not portable across
+# machines, shouldn't be committed. See the impeccable skill's own
+# scripts/bin/<os>-<arch>/ layout.
+/.claude/settings.local.json
+/.claude/skills/*/scripts/bin/
