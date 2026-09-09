@@ -1,5 +1,11 @@
+import { abCbiCalculator } from "./ab-cbi.calculator";
+import { abCbiConfig } from "./ab-cbi.config";
+import { dominicaCbiCalculator } from "./dominica-cbi.calculator";
+import { dominicaCbiConfig } from "./dominica-cbi.config";
 import { greeceGoldenVisaCalculator } from "./greece-golden-visa.calculator";
 import { greeceGoldenVisaConfig } from "./greece-golden-visa.config";
+import { grenadaCbiCalculator } from "./grenada-cbi.calculator";
+import { grenadaCbiConfig } from "./grenada-cbi.config";
 import { italyGoldenVisaCalculator } from "./italy-golden-visa.calculator";
 import { italyGoldenVisaConfig } from "./italy-golden-visa.config";
 import { latviaGoldenVisaCalculator } from "./latvia-golden-visa.calculator";
@@ -8,12 +14,16 @@ import { maltaMprpCalculator } from "./malta-mprp.calculator";
 import { maltaMprpConfig } from "./malta-mprp.config";
 import { nauruCbiCalculator } from "./nauru-cbi.calculator";
 import { nauruCbiConfig } from "./nauru-cbi.config";
+import { portugalGoldenVisaCalculator } from "./portugal-golden-visa.calculator";
+import { portugalGoldenVisaConfig } from "./portugal-golden-visa.config";
 import { sknCbiCalculator } from "./skn-cbi.calculator";
 import { sknCbiConfig } from "./skn-cbi.config";
 import { stLuciaCbiCalculator } from "./st-lucia-cbi.calculator";
 import { stLuciaCbiConfig } from "./st-lucia-cbi.config";
 import { stpCbiCalculator } from "./stp-cbi.calculator";
 import { stpCbiConfig } from "./stp-cbi.config";
+import { turkeyCbiCalculator } from "./turkey-cbi.calculator";
+import { turkeyCbiConfig } from "./turkey-cbi.config";
 import { ProgramDefinition } from "./types";
 import { vanuatuCbiCalculator } from "./vanuatu-cbi.calculator";
 import { vanuatuCbiConfig } from "./vanuatu-cbi.config";
@@ -26,11 +36,16 @@ const programs: ProgramDefinition[] = [
   { config: italyGoldenVisaConfig, calculator: italyGoldenVisaCalculator },
   { config: greeceGoldenVisaConfig, calculator: greeceGoldenVisaCalculator },
   { config: latviaGoldenVisaConfig, calculator: latviaGoldenVisaCalculator },
+  { config: portugalGoldenVisaConfig, calculator: portugalGoldenVisaCalculator },
   { config: nauruCbiConfig, calculator: nauruCbiCalculator },
   { config: sknCbiConfig, calculator: sknCbiCalculator },
   { config: stLuciaCbiConfig, calculator: stLuciaCbiCalculator },
   { config: stpCbiConfig, calculator: stpCbiCalculator },
   { config: vanuatuCbiConfig, calculator: vanuatuCbiCalculator },
+  { config: grenadaCbiConfig, calculator: grenadaCbiCalculator },
+  { config: turkeyCbiConfig, calculator: turkeyCbiCalculator },
+  { config: abCbiConfig, calculator: abCbiCalculator },
+  { config: dominicaCbiConfig, calculator: dominicaCbiCalculator },
 ];
 
 export const programRegistry = new Map<string, ProgramDefinition>(
