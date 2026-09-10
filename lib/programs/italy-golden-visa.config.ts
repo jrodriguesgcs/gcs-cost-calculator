@@ -59,13 +59,13 @@ export const italyGoldenVisaConfig: ProgramConfig = {
     { key: "renewal", title: "Permit Renewal", timing: "After 2 years — renewable for 3 years" },
   ],
   footnotes: [
-    "All fees are indicative. Timeline is a guideline only, at the discretion of Italian authorities; read alongside the full GCS proposal.",
-    "GCS fee: €18,000 main applicant; +€3,000 spouse only; +€5,000 spouse with minor children (flat, all minors included); +€3,000 per adult dependant (14+) or parent (65+). Split 50% on engagement, 50% on submission.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Processing timelines are guidelines only, at the discretion of the Italian authorities.",
     "No additional investment required for family members. Family apply for a reunification visa after the main applicant's Investor Visa is issued.",
     "Investment must be executed within 90 days of entry and maintained for the permit duration. Nulla Osta is valid for 6 months from issue.",
     "Residence permit fee (~€96 per applicant) applies to each family member; biometric attendance at the Questura is mandatory.",
     "Programme currently suspended for Russian and Belarusian nationals and dual passport holders.",
-    "Permanent residence available after 5 years; citizenship after 10 years (B1 Italian language level required).",
     "Legalisation, translations, and courier costs (~€700) vary by how many documents need certifying and where they originate — the figure above is a typical estimate, not a fixed fee, which is why the Grand Total itself is shown as approximate.",
   ],
 };

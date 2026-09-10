@@ -24,10 +24,8 @@ const BIOMETRICS_RATE_MOBILE = 0; // custom quotation, not included in the total
 const FIU_DUE_DILIGENCE_FEE = 5_500;
 const GCS_PROFESSIONAL_FEE = 15_000;
 
-const CIIP_FOOTNOTE =
-  "The CIIP contribution includes a $50,000 investment redeemable after 5 years, so the net cost is $50,000 less than the total above. Processing time is approximately 1–2 months.";
-const DSP_FOOTNOTE =
-  "The DSP contribution is a one-time government donation with no investment component. Processing time is approximately 1–2 months.";
+const CIIP_FOOTNOTE = "The CIIP contribution includes a $50,000 investment redeemable after 5 years.";
+const DSP_FOOTNOTE = "The DSP contribution is a one-time government donation.";
 
 type Programme = "dsp" | "ciip";
 type BiometricsLocation = "in-country" | "overseas" | "mobile";

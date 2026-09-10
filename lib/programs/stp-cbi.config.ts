@@ -56,14 +56,13 @@ export const stpCbiConfig: ProgramConfig = {
   ],
   sections: [
     { key: "beforeSubmission", title: "Before Submission", timing: "Before submission" },
-    { key: "afterApproval", title: "After Approval", timing: "After approval — upon approval-in-principle" },
+    { key: "afterApproval", title: "After Approval", timing: "After approval-in-principle" },
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and listed in USD; bank charges are covered by the marketing agent (Global Citizen Solutions).",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts will be confirmed at the relevant stage of the process.",
+    "All fees are listed in USD; bank charges are covered by the marketing agent (Global Citizen Solutions).",
     "Additional estimated third-party administrative costs, not included in the total above: translation of documents $100–500, apostille/legalisation of documents $100–500, and notarization of documents $100–500 (all payable before submission); courier fee $200–500 (as needed).",
-    "The National Transformation Fund contribution is $90,000 for a solo applicant; once any dependant is added, it becomes a flat $95,000 covering the whole family, regardless of family size.",
-    "Processing timelines are guidelines only, at the discretion of the São Tomé and Príncipe authorities.",
-    "The GCS professional fee (legal and advisory) is separate from the government contribution/fee schedule above.",
   ],
 };

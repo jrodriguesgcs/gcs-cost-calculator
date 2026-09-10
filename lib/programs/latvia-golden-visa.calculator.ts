@@ -7,12 +7,14 @@ import { ProgramCalculator, ProgramVariableValues, Quote, QuoteLineItem, QuoteSe
 // main + spouse + each child, at possibly different rates per person
 // type) or "flat" (a single main-only amount regardless of family size).
 //
-// Two rows in every track carry an explicit sheet comment marking them as
-// NOT a fee — omitted here and covered by a static footnote instead: the
-// D-visa row, and (Real estate only) the Escrow/account-setup row.
-// Document preparation is the one row explicitly marked "include as a
-// fee, but also make a note" — kept as an always-included line, with a
-// footnote in the config explaining it's an approximate cost.
+// The D-visa row carries an explicit sheet comment marking it as NOT a fee —
+// omitted here and covered by a static footnote instead. Document
+// preparation is the one row explicitly marked "include as a fee, but also
+// make a note" — kept as an always-included line, with a footnote in the
+// config explaining it's an approximate cost. (A per-track Escrow/
+// account-setup footnote for the Real Estate track used to be appended here
+// too; removed per the 2026-09-10 review-workbook corrections — the
+// confirmed disclaimer list is now identical across all 4 tracks.)
 //
 // Row-boundary rule (see the approved plan for the full reasoning): each
 // track's own "Total (excl. GCS fee)" SUM() range is inconsistently
@@ -39,7 +41,6 @@ interface TrackDefinition {
   // the source has one.
   gcsFee: TrackRow[];
   hasAddressDeclaration: boolean;
-  hasEscrowNote: boolean;
 }
 
 function perPerson(main: number, spouse: number, child: number): Rate {
@@ -74,7 +75,6 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Corporate legal support — company registration & compliance", rate: flat(10_000) },
     ],
     hasAddressDeclaration: true,
-    hasEscrowNote: false,
   },
   "business-100k": {
     investmentLabel: "Business Investment",
@@ -93,7 +93,6 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Corporate legal support — company registration & compliance", rate: flat(10_000) },
     ],
     hasAddressDeclaration: true,
-    hasEscrowNote: false,
   },
   "real-estate": {
     investmentLabel: "Real Estate Investment",
@@ -115,7 +114,6 @@ const TRACKS: Record<string, TrackDefinition> = {
       { label: "Real estate support — property search & purchase assistance", rate: flat(2_500) },
     ],
     hasAddressDeclaration: false,
-    hasEscrowNote: true,
   },
   "bank-deposit": {
     investmentLabel: "Bank Deposit",
@@ -132,12 +130,8 @@ const TRACKS: Record<string, TrackDefinition> = {
     ],
     gcsFee: [{ label: "GCS legal and advisory fee", rate: flat(10_000) }],
     hasAddressDeclaration: true,
-    hasEscrowNote: false,
   },
 };
-
-const ESCROW_FOOTNOTE =
-  "Escrow/account setup (if applicable) is an additional cost that may apply for the Real Estate Investment track and is not included in the total above.";
 
 interface LatviaGoldenVisaVariables {
   investmentTrack: string;
@@ -212,10 +206,6 @@ export const latviaGoldenVisaCalculator: ProgramCalculator = {
 
     const grandTotal = programmeCosts.subtotal + gcsFee.subtotal;
 
-    const footnotes = track.hasEscrowNote
-      ? [...latviaGoldenVisaConfig.footnotes, ESCROW_FOOTNOTE]
-      : latviaGoldenVisaConfig.footnotes;
-
     return {
       programName: latviaGoldenVisaConfig.name,
       programSlug: latviaGoldenVisaConfig.slug,
@@ -226,7 +216,7 @@ export const latviaGoldenVisaCalculator: ProgramCalculator = {
       sections,
       grandTotal,
       grandTotalApproximate: true, // Document preparation (approximate) always feeds into it
-      footnotes,
+      footnotes: latviaGoldenVisaConfig.footnotes,
     };
   },
 };

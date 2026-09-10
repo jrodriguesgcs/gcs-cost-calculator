@@ -93,11 +93,11 @@ export const greeceGoldenVisaConfig: ProgramConfig = {
     { key: "renewal", title: "Permit Renewal", timing: "Every 5 years" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change by the Greek government. The 4–6+ month timeline is a guideline only, at the discretion of the Greek authorities; read alongside the full GCS proposal.",
-    "The GCS professional fee is split into a €7,000 deposit (due on engagement, Section 1) and the balance (Section 3) — each balance component above is itemized individually; the deposit already paid is subtracted from the balance so the two sections never double-count it.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "The 4–6+ month processing timeline is a guideline only, at the discretion of the Greek authorities.",
     "Government application fee: €2,016 main applicant, €166 per adult dependant, €16 per minor dependant, plus ~€200 health insurance per applicant — repeated at each 5-year renewal. Property taxes (transfer tax 3.09%, notary/stamp duty 1.5%, registration 0.77%) apply to the tangible track only, estimated on the tier selected.",
     "The property purchase price / investment principal shown above buys an asset the applicant retains (or remains invested) — unlike every other line, it isn't spent on a programme cost, even though it's included in the Grand Total.",
-    "Short-term rentals (e.g. Airbnb) are prohibited for Golden Visa holders — violations may cancel residency and incur a €50,000 fine. Dependent parents may be included with no age limit; unmarried partners are ineligible (civil unions recognised); same-sex married spouses eligible since February 2024.",
-    "Greek citizenship may be available after 7 years of physical residence (min. 183 days/year), subject to B1 Greek language proficiency and integration requirements; citizenship should be consulted separately.",
+    "Short-term rentals (e.g. Airbnb) are prohibited for Golden Visa holders — violations may cancel residency and incur a €50,000 fine.",
   ],
 };

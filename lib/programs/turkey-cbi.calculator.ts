@@ -22,8 +22,16 @@ const POWER_OF_ATTORNEY = 450;
 const INTERPRETER_NOTARIZATION_PER_PERSON = 200;
 const BANK_ACCOUNT_DEPOSIT_REFUNDABLE = 500; // bank deposit route only
 
-const GCS_LEGAL_FEE_MAIN = 20_000;
+const GCS_LEGAL_FEE_MAIN_BANK_DEPOSIT = 20_000;
+const GCS_LEGAL_FEE_MAIN_REAL_ESTATE = 15_000;
 const GCS_LEGAL_FEE_PER_DEPENDENT = 5_000;
+
+// Real-estate-only disclaimer (2026-09-10 review-workbook corrections):
+// appended to the static config footnotes only when the client is quoted
+// on the Real Estate route, matching the same conditional-footnote pattern
+// already used for Latvia's tracks and Vanuatu's DSP/CIIP programmes.
+const TITLE_DEED_DISCLAIMER =
+  "Property valuation report and title deed processing tax are charged per property and scale with the number of properties selected. Title deed tax (4%) and the agent fee (2%) are calculated on the total property(properties) value.";
 
 interface TurkeyCbiVariables {
   investmentPath: string;
@@ -78,7 +86,7 @@ export const turkeyCbiCalculator: ProgramCalculator = {
     const interpreterNotarization = totalPersons * INTERPRETER_NOTARIZATION_PER_PERSON;
     const bankAccountDeposit = isRealEstate ? 0 : BANK_ACCOUNT_DEPOSIT_REFUNDABLE;
 
-    const gcsLegalFeeMain = GCS_LEGAL_FEE_MAIN;
+    const gcsLegalFeeMain = isRealEstate ? GCS_LEGAL_FEE_MAIN_REAL_ESTATE : GCS_LEGAL_FEE_MAIN_BANK_DEPOSIT;
     const gcsLegalFeeDependants = dependantsExclMain * GCS_LEGAL_FEE_PER_DEPENDENT;
 
     const programmeCostsLineItems = [
@@ -110,7 +118,11 @@ export const turkeyCbiCalculator: ProgramCalculator = {
       bankAccountDeposit;
 
     const gcsFeeLineItems = [
-      { label: "GCS legal & processing fee — main applicant", amount: gcsLegalFeeMain },
+      {
+        label:
+          gcsLegalFeeDependants === 0 ? "GCS legal & processing fee" : "GCS legal & processing fee — main applicant",
+        amount: gcsLegalFeeMain,
+      },
       { label: "GCS legal & processing fee — per dependant", amount: gcsLegalFeeDependants },
     ];
     const gcsFeeSubtotal = gcsLegalFeeMain + gcsLegalFeeDependants;
@@ -122,6 +134,10 @@ export const turkeyCbiCalculator: ProgramCalculator = {
 
     const grandTotal = programmeCostsSubtotal + gcsFeeSubtotal;
 
+    const footnotes = isRealEstate
+      ? [...turkeyCbiConfig.footnotes, TITLE_DEED_DISCLAIMER]
+      : turkeyCbiConfig.footnotes;
+
     return {
       programName: turkeyCbiConfig.name,
       programSlug: turkeyCbiConfig.slug,
@@ -131,7 +147,7 @@ export const turkeyCbiCalculator: ProgramCalculator = {
       investmentRoute: isRealEstate ? "Real Estate" : "Bank Deposit",
       sections,
       grandTotal,
-      footnotes: turkeyCbiConfig.footnotes,
+      footnotes,
     };
   },
 };

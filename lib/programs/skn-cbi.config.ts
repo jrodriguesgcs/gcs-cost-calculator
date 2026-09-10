@@ -50,15 +50,8 @@ export const sknCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change by the St Kitts & Nevis government; read alongside the full GCS proposal.",
-    "Real estate government fees and escrow are per the April 2026 fee schedule and are identical for both Real Estate options; only the minimum qualifying investment differs ($325,000 share/condominium vs. $600,000 private home in sole ownership).",
-    "The service provider fee is charged on the Real Estate path even for a solo applicant, unlike the Sustainable Island State Contribution or Public Benefit Option paths, where it's waived for a solo applicant.",
-    "Minors are not charged a CBI due diligence fee, per the source schedule.",
-    "The source schedule shows a $500 post-approval main-applicant bank due diligence fee for a solo applicant vs. $550 for family size 2+ (across all three paths) — replicated as given from the source.",
-    "Bank due diligence fee for minor dependants ($150) is replicated exactly as it appears in the source, despite a source footnote referencing a different age band.",
-    "Under the Sustainable Island State Contribution path, there's no separate government fee line — it's folded directly into the contribution amount shown above, not omitted.",
-    "Translation, courier beyond the schedule above, and travel costs are not included and are typically arranged separately.",
-    "Fee schedule source: Lawrence and Associates Ltd. Investment Options Fee Schedule, April 2026.",
-    "The GCS professional fee is separate from the government/due-diligence payment schedule above.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Translation, courier beyond the schedule above, and travel costs are not included above — these are separate third-party fees that may apply and are not quoted here, as they vary case by case.",
   ],
 };

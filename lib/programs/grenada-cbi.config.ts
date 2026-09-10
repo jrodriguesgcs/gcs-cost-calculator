@@ -99,11 +99,8 @@ export const grenadaCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change by the Grenada government; read alongside the full GCS proposal.",
-    "Age thresholds: from age 17, a dependant's fees include full due diligence, interview, and processing charges; from age 18, they also carry the adult passport fee and the oath of allegiance fee. A dependant under 17 pays a reduced application + processing + child passport fee only.",
-    "Bank charge (1% of total funds received) and VAT on that bank charge (15%) are calculated on the full amount transferred, including the GCS professional fee — not just the government/programme costs — per the fee schedule's own grossed-up calculation.",
-    "Translation, courier beyond the schedule above, and travel costs are not included and are typically arranged separately.",
-    "Processing timelines are guidelines only, at the discretion of the Grenada authorities (CBI Unit).",
-    "The GCS professional fee is separate from the government/programme cost above.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Translation, courier beyond the schedule above, and travel costs are not included above — these are separate third-party fees that may apply and are not quoted here, as they vary case by case.",
   ],
 };
