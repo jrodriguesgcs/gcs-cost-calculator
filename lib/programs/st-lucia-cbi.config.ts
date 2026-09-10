@@ -67,12 +67,8 @@ export const stLuciaCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative; sourced from the CIP Saint Lucia official programme site (fees as published, retrieved 17 Aug 2026).",
-    "Due diligence is only conducted on applicants above the age of 16, so dependants under 16 carry no due diligence fee. Dependants aged 16–17 pay the due diligence fee but are priced in the \"under 18\" bucket for investment/administration purposes.",
-    "Enterprise Project Option 2 (joint venture, $6,000,000 with a minimum $1,000,000 per applicant) is not modelled here — it's a multi-applicant structure requiring a bespoke quote.",
-    "Excludes: the mandatory applicant interview and identity verification process (payable by the main applicant only), passport/oath/courier and translation costs, and Real Estate Project closing costs, taxes, and legal fees.",
-    "Post-approval add-ons for an existing citizen (newborn $5,000, spouse $35,000, other dependant $25,000) are priced separately and not included in this estimate.",
-    "The GCS professional fee is separate from the government/programme cost above.",
-    "Processing timelines are guidelines only, at the discretion of the Saint Lucia CIU (Citizenship by Investment Unit).",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Fee schedule source: CIP Saint Lucia official programme site (fees as published, retrieved 17 Aug 2026).",
   ],
 };

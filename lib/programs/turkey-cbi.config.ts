@@ -68,12 +68,8 @@ export const turkeyCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change; read alongside the full GCS proposal.",
-    "$10,000 of the GCS main-applicant legal & processing fee is due upon acceptance; the remainder is due on engagement.",
-    "Certified translation and notarization costs approximately $80 per page. The number of pages required depends on various factors and is defined for each particular application — not priced in this quotation, as it's a typical approximation that varies case by case.",
-    "Government fees, real estate agent fees, and property taxes are subject to change; lines marked \"approx.\" are estimates, not fixed tariffs.",
-    "The qualifying investment (property purchase or bank deposit) is a capital commitment, not a fee. The bank account opening deposit ($500) is charged once per account, applies only to the bank deposit route, and remains in the client's own account.",
-    "Real estate route only: the property valuation report and the title deed processing tax are charged per property and scale with the number of properties selected. Title deed tax (4%) and the agent fee (2%) are currently calculated on a single illustrative property value, not on each property's own value — please confirm the intended figure with GCS directly before quoting a 2-property case.",
-    "Real estate route: the qualifying investment figure shown is an illustrative example value, not the client's actual property price — GCS will confirm the real purchase price and recalculate before a final quotation is issued.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Certified translation and notarization costs approximately $80 per page. The number of pages required depends on various factors and is defined for each particular application — the cost is a typical approximation that varies case by case.",
   ],
 };

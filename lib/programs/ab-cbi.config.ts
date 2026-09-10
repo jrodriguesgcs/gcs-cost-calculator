@@ -123,11 +123,8 @@ export const abCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change by the Antigua & Barbuda government; read alongside the full GCS proposal.",
-    "Local agent fee is negotiated per deal and entered manually for this quote — GCS's fee schedule sets no default rate for it; historical deals have ranged from $0 to $30,000.",
-    "The virtual interview fee is shown as approximate — GCS's own fee schedule doesn't yet confirm whether it's charged once per application or once per person; the figure above assumes once per application.",
-    "Translation, notarization beyond the schedule above, and travel costs are not included and are typically arranged separately.",
-    "Processing timelines are guidelines only, at the discretion of the Antigua & Barbuda CIU (Citizenship by Investment Unit).",
-    "The GCS professional fee is separate from the government/due-diligence payment schedule above.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Translation, notarization beyond the schedule above, and travel costs are not included above — these are separate third-party fees that may apply and are not quoted here, as they vary case by case.",
   ],
 };

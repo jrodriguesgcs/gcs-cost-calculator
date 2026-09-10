@@ -506,7 +506,7 @@ export function renderEstimateHtml(
 
     <div ${grandTotalAttrs}>
       <span class="label">Grand Total</span>
-      <span class="amount">${quote.grandTotalApproximate ? "~" : ""}${formatCurrency(quote.grandTotal, quote.currency)}</span>
+      <span class="amount">${formatCurrency(quote.grandTotal, quote.currency)}</span>
       ${grandTotalNote}
     </div>
 

@@ -63,10 +63,8 @@ export const dominicaCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change by the Dominica government; read alongside the full GCS proposal.",
-    "Children under 16 pay no due diligence fee; children 16–17 and dependants 18+ are charged at the same $4,000 rate.",
-    "Translation, notarization, and travel costs are not included and are typically arranged separately.",
-    "Processing timelines are guidelines only, at the discretion of the Dominica CBIU (Citizenship by Investment Unit).",
-    "The GCS professional fee is separate from the government/programme cost above.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, property acquisition and transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts are to be confirmed at the relevant stage of the process.",
+    "Translation, notarization, and travel costs are not included above — these are separate third-party fees that may apply and are not quoted here, as they vary case by case.",
   ],
 };

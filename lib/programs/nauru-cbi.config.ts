@@ -61,13 +61,9 @@ export const nauruCbiConfig: ProgramConfig = {
     { key: "gcsFee", title: "GCS Professional Fee", timing: "Due on engagement" },
   ],
   footnotes: [
-    "All fees are indicative and subject to change; based on the official Nauru Citizenship by Investment program fee schedule.",
-    "Only dependants aged 16+ attract the $2,000 contribution fee; siblings under 16 are excluded from that fee but still incur the $15,000 sibling contribution (any age) — cumulative, not exclusive, for a 16+ sibling. Source: Nauru Program Office (ecrcp.gov.nr/contribution).",
-    "Passport fee applies to the main applicant and all dependants; a non-applicant benefactor does not receive a passport.",
-    "Payment schedule per Agent Manual §3.2.1: Payment 1 due before submission; Payment 2 due within 30 days of approval in principle.",
-    "The GCS professional fee is separate from the government payment schedule above.",
-    "Contribution amount reflects the current limited-time discount (valid 3 Feb – 31 Dec 2026); subject to change once the promotional period ends.",
-    "Translation, courier, and travel costs are not included above and are typically arranged and paid separately by the applicant.",
-    "The Grand Total covers all three sections shown (Before Submission, After Approval, and the GCS Professional Fee) — nothing is held back or excluded.",
+    "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
+    "Government fees, transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts will be confirmed at the relevant stage of the process.",
+    "Contribution amount reflects the current limited-time Nauru's Iruwa Initiative promotion, that reduces the minimum economic contribution for the Economic and Climate Resilience Citizenship Program (NECRCP) to $90,000 for a principal applicant through December 31, 2026.",
+    "Translation, courier, and travel costs are not included above — these are separate third-party fees that may apply and are not quoted here, as they vary case by case.",
   ],
 };
