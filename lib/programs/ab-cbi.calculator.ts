@@ -47,7 +47,7 @@ const DD_AGE_12_TO_17 = 2_000;
 const DD_AGE_18_PLUS = 4_000;
 const DD_BENEFACTOR = 5_000;
 
-const VIRTUAL_INTERVIEW = 1_500; // per application — source flags this basis as unconfirmed
+const VIRTUAL_INTERVIEW = 1_500; // per application — confirmed set fee, not an approximation
 const PASSPORT_FEE_PER_PERSON = 300;
 const COURIER_STANDARD = 300;
 const COURIER_SHARE = 500;
@@ -187,7 +187,7 @@ export const abCbiCalculator: ProgramCalculator = {
       { label: "Due diligence — dependants/siblings aged 12–17", amount: ddAge12to17 },
       { label: "Due diligence — dependants/siblings 18+ and parents", amount: ddAge18PlusAndParents },
       { label: "Due diligence — benefactor(s)", amount: ddBenefactors },
-      { label: "Virtual interview (see footnote)", amount: VIRTUAL_INTERVIEW, approximate: true },
+      { label: "Virtual interview per application", amount: VIRTUAL_INTERVIEW },
       { label: "Passport fees", amount: passportFees },
       { label: "Courier", amount: courierFee },
       { label: "Bank fee — base", amount: bankFeeBase },

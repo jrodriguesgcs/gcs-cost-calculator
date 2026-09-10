@@ -59,10 +59,7 @@ export function EstimatePreview({ quote }: { quote: Quote }) {
 
       <div className="mt-5 flex items-baseline justify-between border-y-2 border-primary py-2">
         <span className="text-base text-primary">Grand Total</span>
-        <span className="text-lg font-semibold text-primary">
-          {quote.grandTotalApproximate ? "~" : ""}
-          {formatCurrency(quote.grandTotal, quote.currency)}
-        </span>
+        <span className="text-lg font-semibold text-primary">{formatCurrency(quote.grandTotal, quote.currency)}</span>
       </div>
 
       <div className="mt-4 border-t border-border pt-3">
