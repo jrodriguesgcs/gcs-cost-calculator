@@ -1,7 +1,19 @@
+import { useState } from "react";
 import { Quote } from "@/lib/programs/types";
 import { formatAmount, formatCurrency } from "@/lib/currency";
 
 export function EstimatePreview({ quote }: { quote: Quote }) {
+  // Collapsed by default (internal-tool preview only — the generated client
+  // PDF always shows every disclaimer unconditionally, see print-template.ts).
+  // Deliberately a plain local useState, not lifted to the parent: this
+  // component instance is stable across program/route changes in
+  // app/page.tsx (same position, no key), so the open/closed state persists
+  // exactly as the user left it rather than resetting on every quote change.
+  const [showDisclaimers, setShowDisclaimers] = useState(false);
+  const disclaimersLabel = quote.investmentRoute
+    ? "disclaimers for this program and investment route"
+    : "disclaimers for this program";
+
   return (
     <div className="rounded-none border border-border bg-white p-6">
       <h2 className="font-serif text-xl font-normal text-primary">
@@ -53,11 +65,24 @@ export function EstimatePreview({ quote }: { quote: Quote }) {
         </span>
       </div>
 
-      <ul className="mt-4 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-        {quote.footnotes.map((note) => (
-          <li key={note}>{note}</li>
-        ))}
-      </ul>
+      <div className="mt-4 border-t border-border pt-3">
+        <button
+          type="button"
+          onClick={() => setShowDisclaimers((current) => !current)}
+          aria-expanded={showDisclaimers}
+          aria-controls="disclaimers-panel"
+          className="text-xs font-medium text-accent hover:underline"
+        >
+          {showDisclaimers ? `Hide ${disclaimersLabel}` : `Show ${disclaimersLabel}`}
+        </button>
+        {showDisclaimers && (
+          <ul id="disclaimers-panel" className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+            {quote.footnotes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

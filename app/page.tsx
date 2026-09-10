@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { listPrograms } from "@/lib/programs/registry";
 import { ProgramVariable, ProgramVariableValues } from "@/lib/programs/types";
 import { VariableField } from "@/components/VariableField";
@@ -26,6 +26,8 @@ export default function Home() {
   );
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientNameError, setClientNameError] = useState<string | null>(null);
+  const clientNameInputRef = useRef<HTMLInputElement>(null);
 
   const program = programs.find((p) => p.config.slug === programSlug) ?? programs[0];
 
@@ -61,13 +63,24 @@ export default function Home() {
   }
 
   async function handleGeneratePdf() {
+    const trimmedName = clientName.trim();
+    if (!trimmedName) {
+      // Web Interface Guidelines: errors inline next to fields, focus the
+      // first (only) invalid field on submit — rather than pre-emptively
+      // disabling the button, which the guidelines also call out against
+      // ("submit button stays enabled until request starts").
+      setClientNameError("Enter a client name to generate the PDF.");
+      clientNameInputRef.current?.focus();
+      return;
+    }
+    setClientNameError(null);
     setError(null);
     setIsGenerating(true);
     try {
       const response = await fetch("/api/generate-pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programSlug, clientName: clientName.trim(), variables }),
+        body: JSON.stringify({ programSlug, clientName: trimmedName, variables }),
       });
 
       if (!response.ok) {
@@ -95,7 +108,7 @@ export default function Home() {
     }
   }
 
-  const canGenerate = clientName.trim().length > 0 && !isGenerating;
+  const canGenerate = !isGenerating;
 
   return (
     <>
@@ -142,12 +155,27 @@ export default function Home() {
                 </label>
                 <input
                   id="client-name"
+                  ref={clientNameInputRef}
                   type="text"
                   value={clientName}
-                  onChange={(event) => setClientName(event.target.value)}
+                  onChange={(event) => {
+                    setClientName(event.target.value);
+                    if (clientNameError && event.target.value.trim()) setClientNameError(null);
+                  }}
                   placeholder="e.g. John Smith"
-                  className="mt-1 w-full rounded-none border border-border px-4 py-3 text-sm focus:border-ring focus:outline-none focus:ring-[3px] focus:ring-accent/35"
+                  aria-invalid={clientNameError ? "true" : "false"}
+                  aria-describedby={clientNameError ? "client-name-error" : undefined}
+                  className={`mt-1 w-full rounded-none border px-4 py-3 text-sm focus:outline-none focus:ring-[3px] ${
+                    clientNameError
+                      ? "border-destructive focus:border-destructive focus:ring-destructive/35"
+                      : "border-border focus:border-ring focus:ring-accent/35"
+                  }`}
                 />
+                {clientNameError && (
+                  <p id="client-name-error" className="mt-1 text-xs text-destructive">
+                    {clientNameError}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-none border border-border bg-white p-6">
@@ -184,11 +212,6 @@ export default function Home() {
                   "Generate PDF"
                 )}
               </button>
-              {!clientName.trim() && (
-                <p className="text-xs text-muted-foreground">
-                  Enter a client name to enable PDF generation.
-                </p>
-              )}
               {error && (
                 <p className="text-sm text-destructive" aria-live="polite">
                   {error}
