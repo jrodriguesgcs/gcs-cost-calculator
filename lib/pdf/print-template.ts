@@ -151,6 +151,57 @@ export function renderFooterTemplate(): string {
 }
 
 /**
+ * Identifies one of the document's non-splitting top-level blocks (a fee
+ * section, the Grand Total, or the footnotes list) — the unit render-pdf.ts's
+ * pagination simulation reasons about. `index` is only meaningful for
+ * `"section"` (position in `quote.sections`); Grand Total and footnotes are
+ * each always exactly one block, so their `index` is always 0.
+ */
+export interface BlockKey {
+  kind: "section" | "grand-total" | "footnotes";
+  index: number;
+}
+
+export function blockKeyToString(key: BlockKey): string {
+  return `${key.kind}:${key.index}`;
+}
+
+/** Extra shrink applied to a single oversized block only (see render-pdf.ts) — independent of, and layered on top of, the document-wide `scale`. */
+export interface BlockScaleOverride {
+  type: number;
+  space: number;
+}
+
+/**
+ * Pagination decisions computed by render-pdf.ts's simulation, fed back into
+ * the render so the final `page.pdf()` call matches exactly what was
+ * simulated. Every field defaults to empty/off, so the one-page case (the
+ * common one) renders identically to before this existed.
+ */
+export interface PageLayout {
+  /** Blocks that must start a new physical page (`break-before: page`). */
+  pageBreaks?: BlockKey[];
+  /** Blocks that get the "continues on next page" note as their last line — always the block immediately before a `pageBreaks` entry. */
+  noteAfter?: BlockKey[];
+  /** Per-block extra shrink for the rare block-taller-than-one-page case, keyed by `blockKeyToString()`. */
+  blockOverrides?: Map<string, BlockScaleOverride>;
+  /** Blocks that must be allowed to split mid-content because even the scoped shrink above couldn't make them fit one page, keyed by `blockKeyToString()`. */
+  allowSplitBlocks?: Set<string>;
+}
+
+/**
+ * The note shown when a block is the last one on a physical page and
+ * content genuinely continues past it — a client-facing signal that the
+ * document isn't finished, not a warning. Only ever placed at the end of a
+ * `.quote-section` or `.grand-total` (see renderEstimateHtml below):
+ * footnotes are always the last block in the document, so nothing ever
+ * follows them onto a further page.
+ */
+function renderContinuationNote(): string {
+  return `<div class="continuation-note">This estimate continues on the next page.</div>`;
+}
+
+/**
  * Renders the estimate's content (title, family structure, fee sections,
  * grand total, footnotes) as a standalone HTML document styled per the GCS
  * letterhead design tokens. The repeating header/footer are handled
@@ -169,17 +220,54 @@ export function renderFooterTemplate(): string {
  * Footnotes opt out of `scale.type` entirely (see the `.footnotes` rule
  * below) so disclaimers can never shrink below a readable size no matter
  * how dense the quote is.
+ *
+ * `layout` carries render-pdf.ts's pagination decisions (see `PageLayout`
+ * above): which blocks must force a page break, which get a continuation
+ * note, and the rare per-block overrides/allow-split escape hatch for a
+ * block taller than one page. Every field defaults to empty, so a plain
+ * `renderEstimateHtml(quote, scale)` call — as used during the shrink loop,
+ * before pagination is known — renders exactly as it did before this
+ * existed: no forced breaks, no notes, plain `break-inside: avoid` on every
+ * block.
  */
 export function renderEstimateHtml(
   quote: Quote,
   scale: { type: number; space: number } = { type: 1, space: 1 },
+  layout: PageLayout = {},
 ): string {
   const fontFaceCss = getFontFaceCss();
+  const {
+    pageBreaks = [],
+    noteAfter = [],
+    blockOverrides = new Map<string, BlockScaleOverride>(),
+    allowSplitBlocks = new Set<string>(),
+  } = layout;
+  const pageBreakKeys = new Set(pageBreaks.map(blockKeyToString));
+  const noteAfterKeys = new Set(noteAfter.map(blockKeyToString));
+
+  // Builds the `class="..."` (plus an inline style for a block-scoped
+  // override, if any) attribute string for one top-level block — the single
+  // place that turns the simulation's decisions (forced break, allow-split,
+  // scoped shrink) into markup, reused identically for sections, the grand
+  // total, and footnotes below.
+  function blockAttrs(key: BlockKey, baseClass: string): string {
+    const keyStr = blockKeyToString(key);
+    const classes = [baseClass];
+    if (pageBreakKeys.has(keyStr)) classes.push("force-page-break");
+    if (allowSplitBlocks.has(keyStr)) classes.push("allow-split");
+    const override = blockOverrides.get(keyStr);
+    const styleAttr = override
+      ? ` style="--scale-type:${override.type};--scale-space:${override.space};"`
+      : "";
+    return `class="${classes.join(" ")}"${styleAttr}`;
+  }
 
   const sectionsHtml = quote.sections
-    .map(
-      (section) => `
-      <section class="quote-section">
+    .map((section, index) => {
+      const key: BlockKey = { kind: "section", index };
+      const note = noteAfterKeys.has(blockKeyToString(key)) ? renderContinuationNote() : "";
+      return `
+      <section ${blockAttrs(key, "quote-section")}>
         <div class="section-header">
           <h2>${escapeHtml(section.title)}</h2>
           <span class="timing">${escapeHtml(section.timing)}</span>
@@ -206,13 +294,21 @@ export function renderEstimateHtml(
             </tr>
           </tfoot>
         </table>
-      </section>`,
-    )
+        ${note}
+      </section>`;
+    })
     .join("");
 
   const footnotesHtml = quote.footnotes
     .map((note) => `<li>${escapeHtml(note)}</li>`)
     .join("");
+
+  const grandTotalKey: BlockKey = { kind: "grand-total", index: 0 };
+  const grandTotalAttrs = blockAttrs(grandTotalKey, "grand-total");
+  const grandTotalNote = noteAfterKeys.has(blockKeyToString(grandTotalKey)) ? renderContinuationNote() : "";
+
+  const footnotesKey: BlockKey = { kind: "footnotes", index: 0 };
+  const footnotesAttrs = blockAttrs(footnotesKey, "footnotes");
 
   return `<!doctype html>
 <html>
@@ -337,12 +433,17 @@ export function renderEstimateHtml(
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    /* Wraps only when a continuation-note child is present (it forces its
+       own row via flex-basis: 100% below) — a no-op otherwise, since the
+       label/amount pair never needs to wrap on its own. */
+    flex-wrap: wrap;
     border-top: 2px solid ${NAVY};
     border-bottom: 2px solid ${NAVY};
     padding: calc(4mm * var(--scale-space));
     margin: calc(2mm * var(--scale-space)) 0 calc(8mm * var(--scale-space)) 0;
     break-inside: avoid;
   }
+  .grand-total .continuation-note { flex-basis: 100%; }
   .grand-total .label {
     font-family: "Yrsa", serif;
     font-size: calc(14pt * var(--scale-type));
@@ -364,6 +465,34 @@ export function renderEstimateHtml(
     break-inside: avoid;
   }
   .footnotes li { margin-bottom: calc(2mm * var(--scale-space)); }
+
+  /* Pagination-control (see render-pdf.ts's simulatePagination): authoritative
+     forced break, computed and applied only at the exact block the
+     simulation decided starts a new page — stronger than the soft
+     break-inside: avoid above, which Chromium may still violate if a block
+     is genuinely too tall (see .allow-split below). */
+  .force-page-break { break-before: page; }
+  /* Escape hatch for the rare block-taller-than-one-page case (see
+     render-pdf.ts's BLOCK_MIN_SCALE fallback): lets that one block's own
+     content flow across a page boundary after every other option (scoped
+     shrink) has been tried, instead of silently leaving it as an
+     unenforceable break-inside: avoid that Chromium ignores anyway. Doubled
+     selector for specificity over the plain .quote-section/.grand-total/
+     .footnotes rules regardless of source order. */
+  .quote-section.allow-split,
+  .grand-total.allow-split,
+  .footnotes.allow-split {
+    break-inside: auto;
+  }
+  .continuation-note {
+    margin-top: calc(3mm * var(--scale-space));
+    padding-top: calc(2mm * var(--scale-space));
+    border-top: 1px solid ${DOC_BORDER_LIGHT};
+    font-size: calc(9pt * var(--scale-type));
+    font-style: italic;
+    color: ${DOC_MUTED_ALT};
+    text-align: right;
+  }
 </style>
 </head>
 <body>
@@ -375,12 +504,13 @@ export function renderEstimateHtml(
 
     ${sectionsHtml}
 
-    <div class="grand-total">
+    <div ${grandTotalAttrs}>
       <span class="label">Grand Total</span>
       <span class="amount">${quote.grandTotalApproximate ? "~" : ""}${formatCurrency(quote.grandTotal, quote.currency)}</span>
+      ${grandTotalNote}
     </div>
 
-    <ul class="footnotes">
+    <ul ${footnotesAttrs}>
       ${footnotesHtml}
     </ul>
   </div>
