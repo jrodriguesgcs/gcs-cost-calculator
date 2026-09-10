@@ -46,3 +46,7 @@ next-env.d.ts
 # scripts/bin/<os>-<arch>/ layout.
 /.claude/settings.local.json
 /.claude/skills/*/scripts/bin/
+
+# scripts/render-all-programs.ts (scripts/README.md): tsc build output and
+# the batch-rendered QA PDFs it writes — both generated, not source.
+/.scripts-build/

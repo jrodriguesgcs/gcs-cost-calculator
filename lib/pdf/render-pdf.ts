@@ -4,6 +4,9 @@ import {
   renderEstimateHtml,
   renderHeaderTemplate,
   renderFooterTemplate,
+  blockKeyToString,
+  BlockKey,
+  BlockScaleOverride,
   HEADER_MARGIN_MM,
   FOOTER_MARGIN_MM,
 } from "./print-template";
@@ -22,6 +25,40 @@ const MM_TO_PX = 96 / 25.4;
 // in those close calls instead of gambling on an exact edge case.
 const PAGE_SAFETY_MARGIN_PX = 20;
 const CONTENT_HEIGHT_PX = (297 - HEADER_MARGIN_MM - FOOTER_MARGIN_MM) * MM_TO_PX - PAGE_SAFETY_MARGIN_PX;
+// Invariant: HEADER_MARGIN_MM/FOOTER_MARGIN_MM (the page.pdf margin box,
+// below) and print-template.ts's PAGE_SIDE_MARGIN_MM (the .page CSS padding)
+// must never be threaded through `scale` — every shrink step below (and the
+// pagination simulation that follows it) only ever touches
+// --scale-type/--scale-space, so a quote always keeps real breathing margin
+// on every page, never a margin squeezed down to make content fit.
+
+// Extra safety margin applied specifically to the pagination simulation's
+// per-page budget, on top of the PAGE_SAFETY_MARGIN_PX already baked into
+// CONTENT_HEIGHT_PX. The simulation sums several separate
+// getBoundingClientRect() block measurements rather than reading one
+// scrollHeight, and in a real, observed dense case that sum landed <1px
+// under budget while Chromium's actual print pass still needed the extra
+// page — the same on-screen-vs-print-layout rounding gap
+// PAGE_SAFETY_MARGIN_PX exists for above, just resurfacing at a finer
+// grain once content is measured block-by-block. Predicting one extra page
+// break too many is harmless (still clean, non-mid-section pagination);
+// predicting one too few means a real page break with no continuation
+// note, which is the failure this whole feature exists to prevent.
+const PAGINATION_SAFETY_MARGIN_PX = 20;
+
+// Oversized-single-block fallback (a section/grand-total/footnotes block
+// taller than one full page's content budget — not triggered by any of the
+// 14 programs today, in any route/variable combination: max observed
+// section ~18 line items, max footnotes ~1940 characters, both comfortably
+// under one A4 content page). Bounds how far that one block gets shrunk,
+// independently of the document-wide scale, before it's allowed to split
+// with a logged warning rather than silently mis-paginating. See
+// simulatePagination's `oversized` flag and its use in renderQuoteToPdf.
+const BLOCK_MIN_SCALE = 0.7;
+
+// The actual per-page budget the pagination simulation reasons against —
+// see PAGINATION_SAFETY_MARGIN_PX above.
+const PAGINATION_BUDGET_PX = CONTENT_HEIGHT_PX - PAGINATION_SAFETY_MARGIN_PX;
 
 // One page is preferred, not forced: shrink to try to fit a dense quote on
 // one page, but stop there — beyond this point shrinking further would make
@@ -100,6 +137,110 @@ async function measureContentHeightPx(page: Page): Promise<number> {
   });
 }
 
+interface BlockMeasurement {
+  key: BlockKey;
+  /**
+   * This block's full vertical footprint — not just its own border-box
+   * height. Computed as the gap between the *previous* block's bottom edge
+   * and this block's own bottom edge, so it inherently includes this
+   * block's margin-top (and folds the previous block's margin-bottom into
+   * whichever block follows it). This matters because `#estimate-page` is a
+   * `display: flex; flex-direction: column` container — flex items never
+   * collapse margins with each other, unlike normal block flow — so a
+   * plain `getBoundingClientRect().height` (border-box only, no margins)
+   * would silently under-count real space consumed and make the simulation
+   * think more fits per page than actually does.
+   */
+  height: number;
+}
+
+interface BlockMeasurements {
+  /**
+   * Fixed space consumed before the first paginatable block (title, client
+   * name, family structure, optional investment-route line) — only ever
+   * paid once, on the first physical page, since none of that repeats on
+   * later pages the way the Puppeteer header/footer templates do.
+   */
+  headerHeight: number;
+  blocks: BlockMeasurement[];
+}
+
+// Reads the real rendered layout of every top-level block (each fee
+// section, the grand total, the footnotes list) currently in the DOM — i.e.
+// after whatever `scale`/route-driven line-item filtering already applied.
+// This is the input to simulatePagination below.
+async function measureBlocks(page: Page): Promise<BlockMeasurements> {
+  return page.evaluate(() => {
+    const root = document.getElementById("estimate-page");
+    if (!root) return { headerHeight: 0, blocks: [] };
+
+    const candidates = Array.from(root.children).filter((el) =>
+      el.matches(".quote-section, .grand-total, .footnotes"),
+    ) as HTMLElement[];
+    if (candidates.length === 0) return { headerHeight: 0, blocks: [] };
+
+    const rootTop = root.getBoundingClientRect().top;
+    const firstTop = candidates[0].getBoundingClientRect().top;
+    const headerHeight = firstTop - rootTop;
+
+    const blocks: BlockMeasurement[] = [];
+    let prevBottom = firstTop;
+    let sectionIndex = 0;
+    for (const el of candidates) {
+      const rect = el.getBoundingClientRect();
+      let key: BlockKey;
+      if (el.classList.contains("quote-section")) {
+        key = { kind: "section", index: sectionIndex };
+        sectionIndex += 1;
+      } else if (el.classList.contains("grand-total")) {
+        key = { kind: "grand-total", index: 0 };
+      } else {
+        key = { kind: "footnotes", index: 0 };
+      }
+      blocks.push({ key, height: rect.bottom - prevBottom });
+      prevBottom = rect.bottom;
+    }
+
+    return { headerHeight, blocks };
+  });
+}
+
+interface PageAssignment {
+  measurement: BlockMeasurement;
+  page: number;
+  /** This block alone is taller than one page's content budget — see BLOCK_MIN_SCALE. */
+  oversized: boolean;
+}
+
+// Deterministically mirrors what Chromium's real print pagination produces
+// for a sequence of non-splitting blocks (every block here already carries
+// break-inside: avoid): a block starts a new simulated page iff it doesn't
+// fit in what's left of the current one. Since the header/footer repeat
+// identically on every physical page, `budgetPx` is a valid content budget
+// for every simulated page — except the very first, which additionally
+// pays `headerHeight` (the title/client-name/family-structure block above
+// the first section, which is never repeated) — so this single greedy pass
+// tells us exactly which block will start each real page, before we ever
+// call page.pdf().
+function simulatePagination(measurements: BlockMeasurements, budgetPx: number): PageAssignment[] {
+  const { headerHeight, blocks } = measurements;
+  const result: PageAssignment[] = [];
+  let page = 0;
+  let remaining = budgetPx - headerHeight;
+
+  for (const block of blocks) {
+    const oversized = block.height > budgetPx;
+    if (!oversized && block.height > remaining) {
+      page += 1;
+      remaining = budgetPx;
+    }
+    result.push({ measurement: block, page, oversized });
+    remaining -= block.height;
+  }
+
+  return result;
+}
+
 /**
  * Renders a Quote to an A4 PDF, auto-shrinking font size/spacing (via the
  * print template's --scale variable) to try to fit one page — but only
@@ -107,6 +248,13 @@ async function measureContentHeightPx(page: Page): Promise<number> {
  * (or later) page rather than being shrunk into illegibility; the branded
  * header/footer repeat correctly on every page via Puppeteer's native
  * header/footer templates.
+ *
+ * When it does spill onto further pages, pagination is not left to chance:
+ * a deterministic simulation (see simulatePagination) decides exactly which
+ * block starts each page before the final print call, so no fee section or
+ * the disclaimers list is ever split mid-content, and a "continues on the
+ * next page" note appears at exactly the right spot. See the "Deterministic
+ * pagination control" section below.
  */
 export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
   const browser = await getBrowser();
@@ -141,6 +289,70 @@ export async function renderQuoteToPdf(quote: Quote): Promise<Buffer> {
       await page.evaluate(() => document.fonts.ready);
       contentHeightPx = await measureContentHeightPx(page);
     }
+
+    // --- Deterministic pagination control -----------------------------
+    // The shrink loop above only ever tries to fit everything on one page.
+    // If a genuinely dense quote still spills over, decide — before the
+    // final print call, not after — exactly which block starts each real
+    // page, so a forced break can be made authoritative (rather than
+    // relying on the soft break-inside: avoid the print template already
+    // sets) and a professional "continues on next page" note can be placed
+    // at exactly the right spot. Chromium's page.pdf() pagination can't be
+    // inspected after the fact, so this simulates it first (see
+    // simulatePagination's own comment for why the simulation is exact).
+    let measurements = await measureBlocks(page);
+    let assignment = simulatePagination(measurements, PAGINATION_BUDGET_PX);
+
+    const blockOverrides = new Map<string, BlockScaleOverride>();
+    const allowSplitBlocks = new Set<string>();
+
+    const oversizedBlocks = assignment.filter((a) => a.oversized);
+    if (oversizedBlocks.length > 0) {
+      // A block taller than one full page can't be kept off a break by CSS
+      // alone. Apply one extra shrink scoped to just that block (never the
+      // document-wide scale, which is already settled) before accepting it
+      // has to split. Footnotes never scale type (fixed 8pt, see
+      // print-template.ts) — overriding it here would be a no-op there by
+      // design, so only spacing actually shrinks further for that block.
+      for (const a of oversizedBlocks) {
+        const ratio = Math.max(BLOCK_MIN_SCALE, PAGINATION_BUDGET_PX / a.measurement.height);
+        blockOverrides.set(blockKeyToString(a.measurement.key), {
+          type: Math.min(scale.type, ratio),
+          space: Math.min(scale.space, ratio),
+        });
+      }
+
+      html = renderEstimateHtml(quote, scale, { blockOverrides });
+      await page.setContent(html, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+      measurements = await measureBlocks(page);
+      assignment = simulatePagination(measurements, PAGINATION_BUDGET_PX);
+
+      for (const a of assignment) {
+        if (a.oversized) {
+          console.warn(
+            `[render-pdf] "${quote.programSlug}" ${a.measurement.key.kind} #${a.measurement.key.index} is still taller than one page (${Math.round(a.measurement.height)}px) after its scoped shrink floor (${BLOCK_MIN_SCALE}) — allowing it to split rather than silently mis-paginating.`,
+          );
+          allowSplitBlocks.add(blockKeyToString(a.measurement.key));
+        }
+      }
+    }
+
+    const needsForcedBreaks = assignment.some((a, i) => i > 0 && a.page !== assignment[i - 1].page);
+    if (needsForcedBreaks || blockOverrides.size > 0) {
+      const pageBreaks: BlockKey[] = [];
+      const noteAfter: BlockKey[] = [];
+      assignment.forEach((a, i) => {
+        if (i > 0 && a.page !== assignment[i - 1].page) {
+          pageBreaks.push(a.measurement.key);
+          noteAfter.push(assignment[i - 1].measurement.key);
+        }
+      });
+      html = renderEstimateHtml(quote, scale, { pageBreaks, noteAfter, blockOverrides, allowSplitBlocks });
+      await page.setContent(html, { waitUntil: "load" });
+      await page.evaluate(() => document.fonts.ready);
+    }
+    // -------------------------------------------------------------------
 
     const pdfBuffer = await page.pdf({
       format: "A4",
