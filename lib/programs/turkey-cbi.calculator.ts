@@ -37,7 +37,6 @@ interface TurkeyCbiVariables {
   investmentPath: string;
   spouse: boolean;
   children: number;
-  otherDependants: number;
   properties: number;
 }
 
@@ -46,25 +45,23 @@ function readVariables(values: ProgramVariableValues): TurkeyCbiVariables {
     investmentPath: (values.investmentPath as string) ?? "bank-deposit",
     spouse: Boolean(values.spouse),
     children: Number(values.children ?? 0),
-    otherDependants: Number(values.otherDependants ?? 0),
     properties: Number(values.properties ?? 1),
   };
 }
 
 export const turkeyCbiCalculator: ProgramCalculator = {
   computeQuote(values: ProgramVariableValues, clientName: string): Quote {
-    const { investmentPath, spouse, children, otherDependants, properties } = readVariables(values);
+    const { investmentPath, spouse, children, properties } = readVariables(values);
 
     const spouseCount = spouse ? 1 : 0;
     const isRealEstate = investmentPath === "real-estate";
-    const totalPersons = 1 + spouseCount + children + otherDependants;
+    const totalPersons = 1 + spouseCount + children;
     const dependantsExclMain = totalPersons - 1;
     const propertiesCharged = isRealEstate ? properties : 0;
 
     const familyStructure = buildFamilyStructureSentence([
       { kind: "boolean", included: spouse, label: "Spouse" },
       { kind: "count", count: children, singular: "Dependent Child", plural: "Dependent Children" },
-      { kind: "count", count: otherDependants, singular: "Other Dependant", plural: "Other Dependants" },
     ]);
 
     const qualifyingInvestment = isRealEstate ? RE_MIN_INVESTMENT : BANK_DEPOSIT_MIN;

@@ -43,14 +43,6 @@ export const turkeyCbiConfig: ProgramConfig = {
       default: 0,
     },
     {
-      key: "otherDependants",
-      label: "Other Dependants",
-      type: "number",
-      min: 0,
-      max: 10,
-      default: 0,
-    },
-    {
       key: "properties",
       label: "Number of Properties",
       type: "select",
