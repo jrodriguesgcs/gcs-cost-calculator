@@ -40,10 +40,14 @@ const DOC_SURFACE = "#F7F8FD"; // "light card/box background" (§1.10) — used 
 // 6mm logo, but this constant was never revisited — leaving ~29mm of dead
 // white space between the logo and the title on every generated PDF, and
 // needlessly shrinking the auto-shrink content budget in render-pdf.ts.
-// 18mm gives the 6mm logo a comfortable ~12mm gap before content starts
+// 18mm gave the 6mm logo a comfortable ~12mm gap before content starts
 // (roughly the same visual breathing room the old 35mm gave the taller
-// 11mm header) without the leftover slack.
-export const HEADER_MARGIN_MM = 18;
+// 11mm header) without the leftover slack — but left the logo itself flush
+// against the page's top edge, since renderHeaderTemplate's own <div> had no
+// top padding (Puppeteer/Chromium top-aligns header-template content within
+// the margin band). 22mm adds a 4mm top-padding band above the logo (see
+// renderHeaderTemplate) while keeping that same ~12mm gap below it intact.
+export const HEADER_MARGIN_MM = 22;
 export const FOOTER_MARGIN_MM = 16;
 export const PAGE_SIDE_MARGIN_MM = 20;
 
@@ -131,7 +135,7 @@ export function renderHeaderTemplate(): string {
   const widthMm = heightMm * logo.aspectRatio;
 
   return `<style>${fontFaceCss}</style>
-<div style="width:100%; box-sizing:border-box; padding:0 ${PAGE_SIDE_MARGIN_MM}mm; font-family:'Heebo',sans-serif;">
+<div style="width:100%; box-sizing:border-box; padding:4mm ${PAGE_SIDE_MARGIN_MM}mm 0; font-family:'Heebo',sans-serif;">
   <img src="${logo.dataUri}" alt="Global Citizen Solutions" style="height:${heightMm}mm; width:${widthMm}mm;" />
 </div>`;
 }
