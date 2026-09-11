@@ -1,13 +1,14 @@
 import { ProgramConfig } from "./types";
 
 // Display/config data for Latvia Golden Visa, transcribed from
-// Latvia_Quotation_calculator.xlsx — four investment-track tabs
-// ("Business Inv. 50K", "Business Inv. 100K", "Real estate", "Bank
-// deposit") plus a fifth "Fees - Processing Options" tab that isn't a
-// track at all — it's the source for the speed-tiered government-fee
-// footnotes below. See latvia-golden-visa.calculator.ts for the formula
-// logic and the row-boundary rule used to split each track's rows into
-// "Programme Costs" vs. "GCS Professional Fee".
+// Latvia_Quotation_calculator.xlsx — two investment-track tabs
+// ("Business Inv. 50K", "Business Inv. 100K"; the source's "Real estate"
+// and "Bank deposit" tracks were dropped per requester) plus a "Fees -
+// Processing Options" tab that isn't a track at all — it's the source for
+// the speed-tiered government-fee footnotes below. See
+// latvia-golden-visa.calculator.ts for the formula logic and the
+// row-boundary rule used to split each track's rows into "Programme
+// Costs" vs. "GCS Professional Fee".
 //
 // Like St Lucia/Vanuatu, this source has no payment-milestone split — one
 // flat cost table per track — so one "Programme Costs" section plus a
@@ -25,8 +26,6 @@ export const latviaGoldenVisaConfig: ProgramConfig = {
       options: [
         { value: "business-50k", label: "Business Investment — €50,000" },
         { value: "business-100k", label: "Business Investment — €100,000" },
-        { value: "real-estate", label: "Real Estate Investment — €250,000" },
-        { value: "bank-deposit", label: "Bank Deposit — €280,000" },
       ],
       default: "business-50k",
     },
@@ -49,8 +48,6 @@ export const latviaGoldenVisaConfig: ProgramConfig = {
       label: "Annual Address Declaration Service (Optional)",
       type: "boolean",
       default: false,
-      helpText: "Not available for the Real Estate Investment track.",
-      disabledWhen: (values) => values.investmentTrack === "real-estate",
     },
   ],
   sections: [

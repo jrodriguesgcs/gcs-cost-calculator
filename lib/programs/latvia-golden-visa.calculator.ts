@@ -94,43 +94,6 @@ const TRACKS: Record<string, TrackDefinition> = {
     ],
     hasAddressDeclaration: true,
   },
-  "real-estate": {
-    investmentLabel: "Real Estate Investment",
-    programmeCosts: [
-      { label: "Investment", rate: flat(250_000) },
-      { label: "Government contribution (5%, min.)", rate: flat(12_500) },
-      { label: "Assistance with finding the property (5%, min.)", rate: flat(2_500) },
-      { label: "Residence permit application (standard 30 days)", rate: APPLICATION },
-      { label: "Health screening (chest X-ray)", rate: HEALTH_SCREENING },
-      { label: "Medical insurance", rate: MEDICAL_INSURANCE },
-      { label: "Residence permit registration (standard 30 days)", rate: perPerson(75, 75, 75) },
-      { label: "Residence permit card issuance (10 working days)", rate: perPerson(45, 45, 45) },
-      { label: "Notary fees", rate: flat(1_500) },
-      { label: "Land registry property registration (1.5%, min.)", rate: flat(3_750) },
-      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION, approximate: true },
-    ],
-    gcsFee: [
-      { label: "GCS legal and advisory fee", rate: flat(10_000) },
-      { label: "Real estate support — property search & purchase assistance", rate: flat(2_500) },
-    ],
-    hasAddressDeclaration: false,
-  },
-  "bank-deposit": {
-    investmentLabel: "Bank Deposit",
-    programmeCosts: [
-      { label: "Investment", rate: flat(280_000) },
-      { label: "Government contribution", rate: flat(25_000) },
-      { label: "Residence permit application (standard 30 days)", rate: APPLICATION },
-      { label: "Health screening (chest X-ray)", rate: HEALTH_SCREENING },
-      { label: "Medical insurance", rate: MEDICAL_INSURANCE },
-      { label: "Biometrics", rate: perPerson(155, 155, 80) },
-      { label: "ID card production", rate: perPerson(45, 45, 45) },
-      { label: "Account opening fee", rate: flat(4_000) },
-      { label: "Document preparation (approx.)", rate: DOCUMENT_PREPARATION, approximate: true },
-    ],
-    gcsFee: [{ label: "GCS legal and advisory fee", rate: flat(10_000) }],
-    hasAddressDeclaration: true,
-  },
 };
 
 interface LatviaGoldenVisaVariables {
