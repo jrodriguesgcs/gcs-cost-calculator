@@ -12,7 +12,7 @@ import { ProgramConfig } from "./types";
 
 export const nauruCbiConfig: ProgramConfig = {
   slug: "nauru-cbi",
-  name: "Nauru Citizenship by Investment",
+  name: "Naoero (Nauru) Citizenship by Investment",
   currency: "USD",
   variables: [
     {
@@ -63,7 +63,7 @@ export const nauruCbiConfig: ProgramConfig = {
   footnotes: [
     "This quotation is provided for indicative purposes only, based on applicable fees and conditions on the date of issue. It does not constitute a binding offer or contract, nor does it guarantee the final costs of the application or investment.",
     "Government fees, transaction costs, applicable taxes, and other third-party charges are subject to change. Final amounts will be confirmed at the relevant stage of the process.",
-    "Contribution amount reflects the current limited-time Nauru's Iruwa Initiative promotion, that reduces the minimum economic contribution for the Economic and Climate Resilience Citizenship Program (NECRCP) to $90,000 for a principal applicant through December 31, 2026.",
+    "Contribution amount reflects the current limited-time Naoero (Nauru)'s Iruwa Initiative promotion, that reduces the minimum economic contribution for the Economic and Climate Resilience Citizenship Program (NECRCP) to $90,000 for a principal applicant through December 31, 2026.",
     "Translation, courier, and travel costs are not included above — these are separate third-party fees that may apply and are not quoted here, as they vary case by case.",
   ],
 };
